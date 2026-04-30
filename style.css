@@ -1037,11 +1037,31 @@ small {
     text-align: center;
     color: #888;
     font-size: 0.9rem;
+}
+
+/* Responsive Footer */
+@media (max-width: 992px) {
+    .footer-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 30px;
+    }
+}
+
 @media (max-width: 768px) {
     .footer-grid {
         grid-template-columns: 1fr;
         text-align: center;
-        gap: 30px;
+        gap: 40px;
+    }
+    
+    .footer-brand {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .footer-logo {
+        height: 50px;
     }
 }
 
