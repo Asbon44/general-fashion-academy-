@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>General Fashion Academy</title>
+    <meta name="description" content="General Fashion Academy - Premier Dressmaking and Fashion Design in Kumasi">
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <img src="logo.PNG" alt="GFA Logo" class="nav-logo">
+                <span class="logo-text">General Fashion Academy</span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="#home" class="nav-item active" data-target="home-section">Home</a></li>
+                <li><a href="#about" class="nav-item" data-target="about-section">About</a></li>
+                <li><a href="#courses" class="nav-item" data-target="courses-section">Courses</a></li>
+                <li><a href="#admissions" class="nav-item" data-target="admissions-section">Admissions</a></li>
+                <li><a href="#gallery" class="nav-item" data-target="gallery-section">Gallery</a></li>
+                <li><a href="#student-portal" class="nav-item" data-target="student-login-section">Student Portal</a></li>
+                <li><a href="#admin-portal" class="nav-item" data-target="admin-login-section">Admin</a></li>
+            </ul>
+            <div class="mobile-menu">
+                <i class="fas fa-bars"></i>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <!-- Home Section -->
+        <section id="home-section" class="page-section active">
+            <div class="hero">
+                <div class="hero-content">
+                    <h1 class="hero-title">General Fashion Academy</h1>
+                    <p class="hero-subtitle">Shaping the Future of Fashion since 1994</p>
+                    <button class="cta-button primary-btn" onclick="navigateTo('admissions-section')">Enroll Now</button>
+                </div>
+            </div>
+
+            <!-- Welcome Message -->
+            <div class="container">
+                <div class="welcome-container glass-card">
+                    <div class="welcome-badge">Akwaaba!</div>
+                    <h2>Welcome to Our Community</h2>
+                    <p class="welcome-text">
+                        We are delighted to have you here! Whether you are a prospective student looking to start your creative journey or a returning member of our community, we welcome you with open arms. At GFA, we don't just teach fashion; we cultivate talent and shape the future of African design. Explore our courses, view our gallery, and join a tradition of excellence that spans over three decades.
+                    </p>
+                    <div class="welcome-footer">
+                        <span>~ Management, GFA</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section id="about-section" class="page-section">
+            <div class="container">
+                <div class="section-header">
+                    <h2>Our History</h2>
+                    <div class="divider"></div>
+                </div>
+                <div class="about-content glass-card">
+                    <p>General Fashion Academy is a small-scale dressmaking firm that has been in business since 1994. It is one of the 15 companies selected in 2002 by the government of Ghana to launch the President’s Special Initiative (PSI) on textile and garment to take advantage of AGOA (Africa Growth & Opportunity Act) & also one of the most recognized dressmaking firms in the Kumasi Metropolis.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Courses Section -->
+        <section id="courses-section" class="page-section">
+            <div class="container">
+                <div class="section-header">
+                    <h2>Our Curriculum</h2>
+                    <div class="divider"></div>
+                </div>
+                <div class="courses-grid">
+                    <div class="course-card glass-card">
+                        <h3><i class="fas fa-book-open"></i> General Courses</h3>
+                        <ul>
+                            <li>Branding</li>
+                            <li>Leadership</li>
+                            <li>Marketing</li>
+                            <li>Entrepreneurship</li>
+                        </ul>
+                    </div>
+                    <div class="course-card glass-card">
+                        <h3><i class="fas fa-cut"></i> Year One Focus</h3>
+                        <ul>
+                            <li>Garment Construction & Design</li>
+                            <li>Dress Making (Ladies Wear)</li>
+                            <li>Tailoring (Men's Wear)</li>
+                            <li>Millinery</li>
+                            <li>Bead Making</li>
+                            <li>Occasional Wear</li>
+                            <li>Modeling</li>
+                        </ul>
+                    </div>
+                    <div class="course-card glass-card">
+                        <h3><i class="fas fa-crown"></i> Year Two Masterclass</h3>
+                        <ul>
+                            <li>Wedding Gown</li>
+                            <li>Suit Making</li>
+                            <li>Boning</li>
+                            <li>Batik Making</li>
+                            <li>Decoration</li>
+                            <li>Tie and Dye</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Admissions Section -->
+        <section id="admissions-section" class="page-section">
+            <div class="container">
+                <div class="section-header">
+                    <h2>Admissions</h2>
+                    <div class="divider"></div>
+                </div>
+                
+                <div class="admissions-container">
+                    <!-- Row 1: Admission Process (Image Left) -->
+                    <div class="admission-row">
+                        <div class="admission-image-col">
+                            <img src="admission/IMG-20260429-WA0030.jpg" alt="Admission Process" class="admission-row-img">
+                        </div>
+                        <div class="admission-content-col">
+                            <div class="admission-intro glass-card">
+                                <h3>Admission Process</h3>
+                                <p>We appreciate your interest in our institution. We are excited to introduce you to the general fashion academy community, and our website is a terrific location to learn more about everything we have to offer.</p>
+                                
+                                <h4>How to get the forms:</h4>
+                                <ol>
+                                    <li>Purchase application form at the front desk of the school.</li>
+                                    <li>Pay through Via Momo <strong>024 426 4872</strong> (General Fashion Academy). Send a screenshot to 024 426 4872 of Momo transaction.</li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Row 2: Cost & Payments (Image Right) -->
+                    <div class="admission-row reverse">
+                        <div class="admission-image-col">
+                            <img src="admission/IMG-20260429-WA0042.jpg" alt="Cost & Payments" class="admission-row-img">
+                        </div>
+                        <div class="admission-content-col">
+                            <div class="fees-table-container glass-card">
+                                <h3>Cost & Payments</h3>
+                                <table class="fees-table">
+                                    <thead>
+                                        <tr>
+                                            <th>ITEMS</th>
+                                            <th>COST (GHC)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr><td>Application Form</td><td>100.00</td></tr>
+                                        <tr><td>Tuition Fees</td><td>2,800.00 / YEAR</td></tr>
+                                        <tr><td>SRC Dues</td><td>850.00 per Semester</td></tr>
+                                        <tr><td>Miscellaneous(Uniform and Student_ID)</td><td>600.00</td></tr>
+                                        <tr><td>Maintenance Fee</td><td>500.00</td></tr>
+                                        <tr><td>Hostel Fee</td><td>1,300.00</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Row 3: Important Notice (Image Left) -->
+                    <div class="admission-row">
+                        <div class="admission-image-col">
+                            <img src="admission/IMG-20260429-WA0090.jpg" alt="Important Notice" class="admission-row-img">
+                        </div>
+                        <div class="admission-content-col">
+                            <div class="important-notice glass-card alert-box">
+                                <h3><i class="fas fa-exclamation-circle"></i> Important Notice</h3>
+                                <p>Application forms should be purchased only at schools premises <strong>(USE THE SERIAL NUMBER AND PIN TO FILL THE FORM ON generalfashionacademyonlineforms.online)</strong></p>
+                                <ul class="notice-list">
+                                    <li>Tuition fee shall be paid every year.</li>
+                                    <li>Fees paid are not refundable.</li>
+                                    <li>Tuition, miscellaneous & maintenance fees must be paid at the office or through momo or at the bank.</li>
+                                    <li>Miscellaneous covers school uniform and student ID card.</li>
+                                    <li>You can pay 70% of the tuition (or full amount).</li>
+                                </ul>
+                                <div class="text-center mt-4">
+                                    <a href="https://www.generalfashionacademyonlineforms.online/" target="_blank" class="blue-btn">Fill Form</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Gallery Section -->
+        <section id="gallery-section" class="page-section">
+            <div class="container">
+                <div class="section-header">
+                    <h2>Gallery</h2>
+                    <div class="divider"></div>
+                </div>
+                <div class="gallery-grid" id="gallery-container">
+                    <!-- Images will be loaded dynamically via JS -->
+                </div>
+            </div>
+        </section>
+        <!-- Main Footer -->
+        <footer id="main-footer" class="site-footer">
+            <div class="container">
+                <div class="footer-grid">
+                    <div class="footer-brand">
+                        <img src="logo.PNG" alt="GFA Logo" class="footer-logo">
+                        <div class="footer-title">General Fashion Academy</div>
+                        <p>Empowering the next generation of fashion designers with excellence in education since 1994.</p>
+                    </div>
+                    <div class="footer-links">
+                        <h4>Navigation</h4>
+                        <ul>
+                            <li><a href="#" onclick="navigateTo('home-section')">Home</a></li>
+                            <li><a href="#" onclick="navigateTo('about-section')">History</a></li>
+                            <li><a href="#" onclick="navigateTo('admissions-section')">Admissions</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-contact">
+                        <h4>Contact info</h4>
+                        <p><i class="fas fa-envelope"></i> generalfashionacademyaccra@gmail.com</p>
+                        <p><i class="fas fa-map-marker-alt"></i> Kumasi Metropolis, Ghana</p>
+                        <p><i class="fas fa-phone"></i> +233 (0) 244 264 872</p>
+                    </div>
+                </div>
+                <div class="footer-bottom">
+                    <p>&copy; 2026 General Fashion Academy. All Rights Reserved.</p>
+                </div>
+            </div>
+        </footer>
+
+        <!-- Student Login Section -->
+        <section id="student-login-section" class="page-section portal-bg-student">
+            <div class="container">
+                <div class="portal-login-grid">
+                    <div class="portal-info-card">
+                        <h1>Student Portal</h1>
+                        <p>Access your courses, view announcements, and manage your student profile. Registration is required for all new students.</p>
+                    </div>
+                    <div class="login-container glass-card">
+                        <div class="login-tabs">
+                            <button class="tab-btn active" data-tab="student-login">Login</button>
+                            <button class="tab-btn" data-tab="student-register">Register</button>
+                        </div>
+                        
+                        <!-- Student Login -->
+                        <div id="student-login" class="login-form active">
+                            <h2>Welcome Back</h2>
+                            <form id="form-student-login">
+                                <div class="form-group">
+                                    <label>Email</label>
+                                    <input type="email" id="student-email" required placeholder="Enter your email">
+                                </div>
+                                <div class="form-group">
+                                    <label>Password</label>
+                                    <input type="password" id="student-password" required placeholder="Enter your password">
+                                </div>
+                                <button type="submit" class="submit-btn primary-btn">Login to Portal</button>
+                                <div id="student-login-error" class="error-msg"></div>
+                            </form>
+                        </div>
+
+                        <!-- Student Register -->
+                        <div id="student-register" class="login-form">
+                            <h2>Join GFA</h2>
+                            <form id="form-student-register">
+                                <div class="form-group-row">
+                                    <div class="form-group">
+                                        <label>First Name</label>
+                                        <input type="text" id="reg-firstname" required placeholder="First Name">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Surname</label>
+                                        <input type="text" id="reg-surname" required placeholder="Surname">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Email</label>
+                                    <input type="email" id="reg-email" required placeholder="Enter email">
+                                </div>
+                                <div class="form-group">
+                                    <label>Password</label>
+                                    <input type="password" id="reg-password" required placeholder="Create password">
+                                </div>
+                                <div class="form-group">
+                                    <label>Passport Picture</label>
+                                    <input type="file" id="reg-passport" accept="image/*" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Boarding Status</label>
+                                    <div class="radio-group">
+                                        <label class="radio-label"><input type="radio" name="boarding-status" value="boarder" required> Boarder</label>
+                                        <label class="radio-label"><input type="radio" name="boarding-status" value="day"> Day Student</label>
+                                    </div>
+                                </div>
+                                <button type="submit" class="submit-btn primary-btn">Create Account</button>
+                                <div id="student-reg-error" class="error-msg"></div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Admin Login Section -->
+        <section id="admin-login-section" class="page-section portal-bg-admin">
+            <div class="container">
+                <div class="admin-login-card glass-card">
+                    <div class="admin-icon"><i class="fas fa-user-shield"></i></div>
+                    <h2>Administrative Access</h2>
+                    <p>Enter your authorization credentials to manage the academy systems.</p>
+                    <form id="form-admin-login">
+                        <div class="form-group">
+                            <label>Admin Password</label>
+                            <input type="password" id="admin-password" required placeholder="Enter secure password">
+                        </div>
+                        <button type="submit" class="submit-btn admin-btn">Authorize Access</button>
+                        <div id="admin-login-error" class="error-msg"></div>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- Admin Portal Section -->
+        <section id="admin-section" class="page-section portal-section">
+            <div class="portal-sidebar">
+                <div class="portal-brand">
+                    <img src="logo.PNG" alt="Logo" class="sidebar-logo">
+                    <span>Admin Panel</span>
+                </div>
+                <ul class="portal-nav">
+                    <li class="active" data-admin-tab="dashboard"><i class="fas fa-chart-line"></i> Dashboard</li>
+                    <li data-admin-tab="students"><i class="fas fa-users"></i> Manage Students</li>
+                    <li data-admin-tab="payments"><i class="fas fa-money-bill-wave"></i> Payments</li>
+                    <li data-admin-tab="announcements"><i class="fas fa-bullhorn"></i> Announcements</li>
+                    <li data-admin-tab="complaints"><i class="fas fa-envelope-open-text"></i> Student Complaints</li>
+                    <li onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</li>
+                </ul>
+            </div>
+            <div class="portal-content">
+                <!-- Dashboard Tab -->
+                <div id="admin-dashboard-tab" class="admin-tab-content active">
+                    <h2>Overview</h2>
+                    <div class="stats-grid">
+                        <div class="stat-card glass-card">
+                            <div class="stat-icon"><i class="fas fa-user-graduate"></i></div>
+                            <div class="stat-details">
+                                <h4 id="stat-total-students">0</h4>
+                                <span>Total Students</span>
+                            </div>
+                        </div>
+                        <div class="stat-card glass-card">
+                            <div class="stat-icon"><i class="fas fa-bed"></i></div>
+                            <div class="stat-details">
+                                <h4 id="stat-boarding">0</h4>
+                                <span>Boarding Students</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Students Tab -->
+                <div id="admin-students-tab" class="admin-tab-content">
+                    <div class="flex-between mb-4">
+                        <h2>Manage Students</h2>
+                        <button class="primary-btn small-btn" onclick="openModal('add-student-modal')">Add Student</button>
+                    </div>
+                    <div class="table-responsive glass-card">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Course</th>
+                                    <th>Boarding</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-students-list">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Payments Tab -->
+                <div id="admin-payments-tab" class="admin-tab-content">
+                    <div class="flex-between mb-4">
+                        <h2>Payment Records</h2>
+                        <button class="primary-btn small-btn" onclick="openModal('add-payment-modal')">Record Payment</button>
+                    </div>
+                    <div class="table-responsive glass-card">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Student</th>
+                                    <th>Type</th>
+                                    <th>Amount (GHC)</th>
+                                    <th>Date</th>
+                                    <th>Method</th>
+                                    <th>Receipt</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-payments-list">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Announcements Tab -->
+                <div id="admin-announcements-tab" class="admin-tab-content">
+                    <div class="section-header-mini mb-4">
+                        <h2>Broadcasting & Announcements</h2>
+                        <p>Write a message here to instantly update all student portals.</p>
+                    </div>
+
+                    <!-- Direct Compose Area -->
+                    <div class="glass-card mb-5 compose-announcement">
+                        <form id="form-add-announcement">
+                            <div class="form-group">
+                                <label>Announcement Title</label>
+                                <input type="text" id="ann-title" required placeholder="e.g. Holiday Notice, Exam Dates...">
+                            </div>
+                            <div class="form-group">
+                                <label>Your Message</label>
+                                <textarea id="ann-message" required rows="4" placeholder="Type the information you want to share with students..."></textarea>
+                            </div>
+                            <button type="submit" class="submit-btn admin-btn"><i class="fas fa-paper-plane"></i> Post to Student Portal</button>
+                        </form>
+                    </div>
+
+                    <div class="section-header-mini mb-3">
+                        <h3>Previous Announcements</h3>
+                    </div>
+                    <div class="glass-card" style="padding: 20px;">
+                        <div id="admin-announcements-list" class="announcement-list-admin">
+                            <!-- Populated dynamically -->
+                            <p class="text-muted">No announcements yet.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Complaints Tab -->
+                <div id="admin-complaints-tab" class="admin-tab-content">
+                    <h2>Student Complaints & Feedback</h2>
+                    <p class="text-muted mb-4">View and manage feedback received from students.</p>
+                    <div id="admin-complaints-list">
+                        <!-- Populated dynamically -->
+                        <p class="text-muted">No complaints yet.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Student Portal Section -->
+        <section id="student-section" class="page-section portal-section">
+            <div class="portal-sidebar">
+                <div class="portal-brand">
+                    <img src="logo.PNG" alt="Logo" class="sidebar-logo">
+                    <span>GFA</span>
+                </div>
+                <div class="student-profile-mini">
+                    <i class="fas fa-user-circle"></i>
+                    <span id="st-portal-name">Student Name</span>
+                </div>
+                <ul class="portal-nav">
+                    <li class="active" data-student-tab="dashboard"><i class="fas fa-home"></i> Home</li>
+                    <li data-student-tab="courses"><i class="fas fa-book"></i> My Courses</li>
+                    <li data-student-tab="payments"><i class="fas fa-receipt"></i> My Payments</li>
+                    <li data-student-tab="announcements"><i class="fas fa-bullhorn"></i> Announcements</li>
+                    <li data-student-tab="support"><i class="fas fa-headset"></i> Support & Complaints</li>
+                    <li onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</li>
+                </ul>
+            </div>
+            <div class="portal-content">
+                <!-- Dashboard Tab -->
+                <div id="student-dashboard-tab" class="student-tab-content active">
+                    <h2>Welcome, <span id="st-welcome-name">Student</span>!</h2>
+                    
+                    <!-- Slideshow Section -->
+                    <div class="student-slideshow glass-card mt-4">
+                        <div class="slideshow-container">
+                            <img id="st-slide-img" src="" alt="Slideshow" class="slide-img">
+                        </div>
+                    </div>
+
+                    <div class="glass-card mt-4">
+                        <h3>Your Profile Details</h3>
+                        <p><strong>Course:</strong> <span id="st-profile-course">...</span></p>
+                        <p><strong>Boarding Status:</strong> <span id="st-profile-boarding">...</span></p>
+                    </div>
+                </div>
+
+                <!-- Courses Tab -->
+                <div id="student-courses-tab" class="student-tab-content">
+                    <h2>Academy Curriculum</h2>
+                    <p class="text-muted mb-4">Explore the courses offered at General Fashion Academy.</p>
+
+                    <div class="courses-curriculum-grid">
+                        <!-- General Courses -->
+                        <div class="course-category-card glass-card">
+                            <div class="category-header">
+                                <i class="fas fa-graduation-cap"></i>
+                                <h3>General Courses</h3>
+                            </div>
+                            <ul class="course-list">
+                                <li><i class="fas fa-check-circle"></i> Branding</li>
+                                <li><i class="fas fa-check-circle"></i> Leadership</li>
+                                <li><i class="fas fa-check-circle"></i> Marketing</li>
+                                <li><i class="fas fa-check-circle"></i> Entrepreneurship</li>
+                            </ul>
+                        </div>
+
+                        <!-- Year One Focus -->
+                        <div class="course-category-card glass-card">
+                            <div class="category-header">
+                                <i class="fas fa-cut"></i>
+                                <h3>Year One Focus</h3>
+                            </div>
+                            <ul class="course-list">
+                                <li><i class="fas fa-check-circle"></i> Garment Construction & Design</li>
+                                <li><i class="fas fa-check-circle"></i> Dress Making (Ladies Wear)</li>
+                                <li><i class="fas fa-check-circle"></i> Tailoring (Men's Wear)</li>
+                                <li><i class="fas fa-check-circle"></i> Millinery</li>
+                                <li><i class="fas fa-check-circle"></i> Bead Making</li>
+                                <li><i class="fas fa-check-circle"></i> Occasional Wear</li>
+                                <li><i class="fas fa-check-circle"></i> Modeling</li>
+                            </ul>
+                        </div>
+
+                        <!-- Year Two Masterclass -->
+                        <div class="course-category-card glass-card">
+                            <div class="category-header">
+                                <i class="fas fa-star"></i>
+                                <h3>Year Two Masterclass</h3>
+                            </div>
+                            <ul class="course-list">
+                                <li><i class="fas fa-check-circle"></i> Wedding Gown</li>
+                                <li><i class="fas fa-check-circle"></i> Suit Making</li>
+                                <li><i class="fas fa-check-circle"></i> Boning</li>
+                                <li><i class="fas fa-check-circle"></i> Batik Making</li>
+                                <li><i class="fas fa-check-circle"></i> Decoration</li>
+                                <li><i class="fas fa-check-circle"></i> Tie and Dye</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Student Payments Tab -->
+                <div id="student-payments-tab" class="student-tab-content">
+                    <h2>My Payment History</h2>
+                    <p class="text-muted mb-4">View your recorded school and hostel fee payments.</p>
+                    
+                    <div class="table-responsive glass-card mt-4">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Type</th>
+                                    <th>Amount (GHC)</th>
+                                    <th>Date</th>
+                                    <th>Method</th>
+                                </tr>
+                            </thead>
+                            <tbody id="st-payments-list">
+                                <!-- Populated from Firebase -->
+                                <tr><td colspan="4" class="text-center">No payment records found.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Announcements Tab -->
+                <div id="student-announcements-tab" class="student-tab-content">
+                    <h2>Latest Announcements</h2>
+                    <div class="mt-4" id="st-announcements-list">
+                        <!-- Populated from Firebase -->
+                        <p class="text-muted">Loading announcements...</p>
+                    </div>
+                </div>
+                
+                <!-- Support & Complaints Tab -->
+                <div id="student-support-tab" class="student-tab-content">
+                    <h2>Support & Complaints</h2>
+                    <p class="text-muted mb-4">Have a concern or need help? Send us a message directly.</p>
+                    
+                    <div class="glass-card mt-4" style="padding: 2rem;">
+                        <form id="form-student-complaint">
+                            <div class="form-group">
+                                <label>Subject</label>
+                                <input type="text" id="comp-subject" required placeholder="e.g. Course Material Issue, Payment Query">
+                            </div>
+                            <div class="form-group">
+                                <label>Describe your complaint or request</label>
+                                <textarea id="comp-message" required rows="6" style="width:100%; border-radius:8px; padding:12px; border:1px solid #ddd; font-family: inherit; font-size: 1rem;"></textarea>
+                            </div>
+                            <button type="submit" class="cta-button primary-btn" style="width: 100%;">
+                                <i class="fas fa-paper-plane"></i> Send Complaint to Management
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="glass-card mt-4" style="border-left: 5px solid var(--accent-gold);">
+                        <p style="font-size: 0.9rem; color: #666;">
+                            <i class="fas fa-info-circle"></i> Note: Your complaint will be sent directly to the administration dashboard for review.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modals -->
+    <!-- Add Student Modal -->
+    <div id="add-student-modal" class="modal">
+        <div class="modal-content glass-card">
+            <span class="close-modal" onclick="closeModal('add-student-modal')">&times;</span>
+            <h2>Register New Student</h2>
+            <form id="form-add-student">
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="add-st-name" required>
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="add-st-email" required>
+                </div>
+                <div class="form-group">
+                    <label>Password (Default: 123456)</label>
+                    <input type="text" id="add-st-password" value="123456" required>
+                </div>
+                <div class="form-group">
+                    <label>Course</label>
+                    <select id="add-st-course" required>
+                        <option value="General Courses">General Courses</option>
+                        <option value="Year One Focus">Year One Focus</option>
+                        <option value="Year Two Masterclass">Year Two Masterclass</option>
+                    </select>
+                </div>
+                <div class="form-group checkbox-group">
+                    <input type="checkbox" id="add-st-boarding">
+                    <label for="add-st-boarding">Boarding Student</label>
+                </div>
+                <button type="submit" class="submit-btn primary-btn">Register Student</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Payment Modal -->
+    <div id="add-payment-modal" class="modal">
+        <div class="modal-content glass-card">
+            <span class="close-modal" onclick="closeModal('add-payment-modal')">&times;</span>
+            <h2>Record Payment</h2>
+            <form id="form-add-payment">
+                <div class="form-group">
+                    <label>Student</label>
+                    <select id="pay-st-id" required>
+                        <!-- Populated dynamically -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Payment For</label>
+                    <select id="pay-type" required>
+                        <option value="School Fees">School Fees</option>
+                        <option value="Hostel Fee">Hostel Fee</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Amount (GHC)</label>
+                    <input type="number" id="pay-amount" required>
+                </div>
+                <div class="form-group">
+                    <label>Payment Method</label>
+                    <select id="pay-method" required>
+                        <option value="MoMo">MoMo</option>
+                        <option value="Cash">Cash</option>
+                        <option value="Bank Transfer">Bank Transfer</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Date</label>
+                    <input type="date" id="pay-date" required>
+                </div>
+                <button type="submit" class="submit-btn primary-btn">Save Payment</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Receipt Modal -->
+    <div id="receipt-modal" class="modal">
+        <div class="modal-content receipt-paper">
+            <span class="close-modal" onclick="closeModal('receipt-modal')">&times;</span>
+            <div class="receipt-header">
+                <img src="logo.PNG" alt="GFA Logo" class="receipt-logo-img">
+                <h3>General Fashion Academy</h3>
+                <p>Official Payment Receipt</p>
+            </div>
+            <div class="receipt-body">
+                <div class="receipt-row"><span>Receipt No:</span> <strong id="rec-no">#GFA-001</strong></div>
+                <div class="receipt-row"><span>Date:</span> <span id="rec-date">...</span></div>
+                <hr>
+                <div class="receipt-row"><span>Student Name:</span> <span id="rec-student">...</span></div>
+                <div class="receipt-row"><span>Payment Method:</span> <span id="rec-method">...</span></div>
+                <div class="receipt-total">
+                    <span>Total Amount Paid</span>
+                    <h2 id="rec-amount">GHC 0.00</h2>
+                </div>
+            </div>
+            <div class="receipt-footer">
+                <p>Thank you for choosing General Fashion Academy!</p>
+                <small>Generated for HQ: generalfashionacademyaccra@gmail.com</small>
+                <div class="no-print mt-4">
+                    <button class="primary-btn" onclick="window.print()">Print Receipt</button>
+                    <button class="admin-btn" id="btn-send-hq">Email to HQ</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Announcement Modal -->
+    <div id="add-announcement-modal" class="modal">
+        <div class="modal-content glass-card" style="max-width: 500px;">
+            <span class="close-modal" onclick="closeModal('add-announcement-modal')">&times;</span>
+            <h2>Post Announcement</h2>
+            <form id="form-add-announcement">
+                <div class="form-group">
+                    <label>Title</label>
+                    <input type="text" id="ann-title" required placeholder="e.g. Exam Schedule">
+                </div>
+                <div class="form-group">
+                    <label>Message</label>
+                    <textarea id="ann-message" required rows="4" style="width:100%; border-radius:6px; padding:10px; border:1px solid #ccc; font-family: inherit;"></textarea>
+                </div>
+                <button type="submit" class="submit-btn admin-btn">Post to Student Portal</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Lightbox Modal -->
+    <div id="lightbox-modal" class="modal lightbox-overlay" onclick="closeModal('lightbox-modal')">
+        <span class="close-lightbox">&times;</span>
+        <img id="lightbox-img" class="lightbox-content">
+    </div>
+
+    <!-- Firebase SDKs (v8 Compat) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+    <script src="app.js"></script>
+</body>
+</html>
