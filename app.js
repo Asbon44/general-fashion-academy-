@@ -192,9 +192,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 let base64 = "";
                 if (passportFile) base64 = await fileToBase64(passportFile);
 
-                const allSnap = await db.ref('students').once('value');
-                const count = allSnap.numChildren();
-                const studentNumber = `GFA${String(count + 1).padStart(5, '0')}`;
+                // Use a transaction to ensure unique sequential student numbers across all devices
+                const counterRef = db.ref('student_counter');
+                const result = await counterRef.transaction((currentCount) => {
+                    return (currentCount || 0) + 1;
+                });
+
+                if (!result.committed) {
+                    throw new Error("Could not generate student number");
+                }
+
+                const newCount = result.snapshot.val();
+                const studentNumber = `GFA${String(newCount).padStart(5, '0')}`;
 
                 const studentData = {
                     name: `${firstName} ${surname}${otherName ? ' ' + otherName : ''}`,
