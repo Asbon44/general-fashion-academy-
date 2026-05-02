@@ -137,7 +137,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (studentLoginForm) {
         studentLoginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const email = document.getElementById('student-email').value.trim().toLowerCase();
+            const studentId = document.getElementById('student-id-login').value.trim().toUpperCase();
             const pwd = document.getElementById('student-password').value;
             const errorMsg = document.getElementById('student-login-error');
             
@@ -146,7 +146,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const allStudents = snapshot.val();
                 let found = null;
                 for (let id in allStudents) {
-                    if (allStudents[id].email && allStudents[id].email.toLowerCase() === email) {
+                    if (allStudents[id].studentNumber === studentId) {
                         if (allStudents[id].password === pwd) {
                             found = { id, ...allStudents[id] };
                             break;
@@ -158,7 +158,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     currentUser = { type: 'student', ...found };
                     navigateTo('student-section');
                 } else {
-                    errorMsg.textContent = "Invalid email or password";
+                    errorMsg.textContent = "Invalid Student Number or password";
                 }
             } catch (err) {
                 errorMsg.textContent = "Error connecting to server";
@@ -173,6 +173,8 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
             const firstName = document.getElementById('reg-firstname').value;
             const surname = document.getElementById('reg-surname').value;
+            const otherName = document.getElementById('reg-othername').value;
+            const gender = document.getElementById('reg-gender').value;
             const email = document.getElementById('reg-email').value;
             const password = document.getElementById('reg-password').value;
             const passportFile = document.getElementById('reg-passport').files[0];
@@ -190,9 +192,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 let base64 = "";
                 if (passportFile) base64 = await fileToBase64(passportFile);
 
+                const allSnap = await db.ref('students').once('value');
+                const count = allSnap.numChildren();
+                const studentNumber = `GFA${String(count + 1).padStart(5, '0')}`;
+
                 const studentData = {
-                    name: `${firstName} ${surname}`,
-                    firstName, surname, email, password,
+                    name: `${firstName} ${surname}${otherName ? ' ' + otherName : ''}`,
+                    firstName, surname, otherName, gender, email, password,
+                    studentNumber,
                     passportPic: base64,
                     boarding: boardingStatus === 'boarder',
                     course: 'Not Assigned',
@@ -203,7 +210,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 await newRef.set(studentData);
                 currentUser = { type: 'student', id: newRef.key, ...studentData };
                 navigateTo('student-section');
-                alert("Welcome to GFA!");
+                alert(`Welcome to GFA! Your Student Number is: ${studentNumber}. Please use this to login.`);
             } catch (err) {
                 errorMsg.textContent = "Registration failed. Check connection.";
             }
@@ -320,6 +327,43 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Student: Submit Attachment
+    const studentAttForm = document.getElementById('form-student-attachment');
+    if (studentAttForm) {
+        studentAttForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!currentUser) return;
+
+            const shopName = document.getElementById('att-shop-name').value;
+            const town = document.getElementById('att-town').value;
+            const region = document.getElementById('att-region').value;
+            const district = document.getElementById('att-district').value;
+            const shopAddress = document.getElementById('att-shop-address').value;
+            const ownerPhone = document.getElementById('att-owner-phone').value;
+
+            const attachmentData = {
+                studentId: currentUser.id,
+                studentName: currentUser.name,
+                studentEmail: currentUser.email,
+                shopName,
+                town,
+                region,
+                district,
+                shopAddress,
+                ownerPhone,
+                createdAt: new Date().toISOString()
+            };
+
+            try {
+                await db.ref('attachments').push(attachmentData);
+                alert('Attachment details submitted successfully!');
+                e.target.reset();
+            } catch (err) {
+                alert('Failed to submit attachment details. Please check your connection.');
+            }
+        });
+    }
+
     loadGallery();
     startHeroSlideshow();
     startPortalSlideshow();
@@ -397,13 +441,14 @@ async function loadAdminData() {
         list.innerHTML = '';
         if (select) select.innerHTML = '<option value="">Select Student...</option>';
         
-        let total = 0, boarding = 0;
+        let total = 0, boarding = 0, day = 0;
         const data = snap.val();
         for (let id in data) {
             total++;
             if (data[id].boarding) boarding++;
+            else day++;
             const tr = document.createElement('tr');
-            tr.innerHTML = `<td>${data[id].name}</td><td>${data[id].email}</td><td>${data[id].course}</td><td>${data[id].boarding?'Yes':'No'}</td><td><button class="small-btn" style="background:#dc3545; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;" onclick="deleteStudent('${id}')">Delete</button></td>`;
+            tr.innerHTML = `<td><strong>${data[id].studentNumber || 'N/A'}</strong></td><td>${data[id].name}</td><td>${data[id].course}</td><td>${data[id].boarding?'Boarder':'Day Student'}</td><td><button class="small-btn" style="background:#dc3545; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;" onclick="deleteStudent('${id}')">Delete</button></td>`;
             list.appendChild(tr);
             if (select) {
                 const opt = document.createElement('option');
@@ -413,6 +458,7 @@ async function loadAdminData() {
         }
         document.getElementById('stat-total-students').textContent = total;
         document.getElementById('stat-boarding').textContent = boarding;
+        document.getElementById('stat-day').textContent = day;
     });
 
     db.ref('payments').on('value', async snap => {
@@ -426,7 +472,10 @@ async function loadAdminData() {
             const p = data[id];
             const name = stData[p.studentId]?.name || 'Unknown';
             const tr = document.createElement('tr');
-            tr.innerHTML = `<td>${name}</td><td>${p.type || 'Fees'}</td><td>GHC ${p.amount}</td><td>${p.date}</td><td>${p.method}</td><td><a href="mailto:${stData[p.studentId]?.email}?subject=Receipt&body=Received GHC ${p.amount} for ${p.type || 'Fees'}" class="small-btn primary-btn">Send Receipt</a></td>`;
+            tr.innerHTML = `<td>${name}</td><td>${p.type || 'Fees'}</td><td>GHC ${p.amount}</td><td>${p.date}</td><td>${p.method}</td><td>
+                <a href="mailto:${stData[p.studentId]?.email}?subject=Receipt&body=Received GHC ${p.amount} for ${p.type || 'Fees'}" class="small-btn primary-btn" style="text-decoration:none; margin-right:5px;"><i class="fas fa-paper-plane"></i></a>
+                <button class="small-btn" style="background:#dc3545; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;" onclick="deletePayment('${id}')"><i class="fas fa-trash"></i></button>
+            </td>`;
             list.appendChild(tr);
         }
     });
@@ -488,6 +537,51 @@ async function loadAdminData() {
             list.innerHTML = '<p class="text-muted">No complaints at the moment.</p>';
         }
     });
+
+    // Load Admin Attachments
+    db.ref('attachments').on('value', snap => {
+        const list = document.getElementById('admin-attachments-list');
+        if (!list) return;
+        list.innerHTML = '';
+        const data = snap.val();
+        if (data) {
+            for (let id in data) {
+                const att = data[id];
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>
+                        <div style="font-weight:600;">${att.studentName}</div>
+                        <div style="font-size:0.8rem; color:#666;">${att.studentEmail}</div>
+                    </td>
+                    <td>${att.shopName}</td>
+                    <td>${att.town}, ${att.region}</td>
+                    <td>${att.ownerPhone}</td>
+                    <td>${new Date(att.createdAt).toLocaleDateString()}</td>
+                    <td>
+                        <button class="small-btn primary-btn" onclick="viewAttachmentDetails('${id}')" style="margin-right:5px;"><i class="fas fa-eye"></i></button>
+                        <button class="small-btn" style="background:#dc3545; color:white; border:none; padding:4px 8px; border-radius:4px;" onclick="deleteAttachment('${id}')"><i class="fas fa-trash"></i></button>
+                    </td>
+                `;
+                list.appendChild(tr);
+            }
+        } else {
+            list.innerHTML = '<tr><td colspan="6" class="text-center text-muted">No attachments found.</td></tr>';
+        }
+    });
+}
+
+window.viewAttachmentDetails = async (id) => {
+    const snap = await db.ref('attachments/' + id).once('value');
+    const att = snap.val();
+    if (att) {
+        alert(`Attachment Details:\n\nStudent: ${att.studentName}\nShop: ${att.shopName}\nTown: ${att.town}\nRegion: ${att.region}\nDistrict: ${att.district}\nAddress: ${att.shopAddress}\nOwner Phone: ${att.ownerPhone}`);
+    }
+}
+
+window.deleteAttachment = async (id) => {
+    if(confirm('Delete this attachment record?')) {
+        await db.ref('attachments/' + id).remove();
+    }
 }
 
 window.deleteComplaint = async (id) => {
@@ -509,6 +603,10 @@ function loadStudentData() {
         mini.innerHTML = `<img src="${currentUser.passportPic || ''}" class="student-portal-pic" onerror="this.src='https://via.placeholder.com/100'"><span id="st-portal-name">${currentUser.name}</span>`;
     }
     document.getElementById('st-welcome-name').textContent = currentUser.firstName || currentUser.name;
+    document.getElementById('st-profile-firstname').textContent = currentUser.firstName || '...';
+    document.getElementById('st-profile-surname').textContent = currentUser.surname || '...';
+    document.getElementById('st-profile-othername').textContent = currentUser.otherName || 'None';
+    document.getElementById('st-profile-gender').textContent = currentUser.gender || 'Not Set';
     document.getElementById('st-profile-course').textContent = currentUser.course || 'Not Assigned';
     document.getElementById('st-profile-boarding').textContent = currentUser.boarding ? 'Boarder' : 'Day Student';
     
@@ -593,4 +691,5 @@ window.logout = () => { currentUser = null; navigateTo('home-section'); };
 window.openModal = id => document.getElementById(id).classList.add('active');
 window.closeModal = id => document.getElementById(id).classList.remove('active');
 window.deleteStudent = id => confirm('Delete student?') && db.ref('students/'+id).remove();
+window.deletePayment = id => confirm('Are you sure you want to delete this payment record? This will also remove it from the student portal.') && db.ref('payments/'+id).remove();
 function fileToBase64(file) { return new Promise((res, rej) => { const r = new FileReader(); r.readAsDataURL(file); r.onload = () => res(r.result); r.onerror = e => rej(e); }); }

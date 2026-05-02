@@ -1260,3 +1260,163 @@ small {
         font-size: 1.1rem;
     }
 }
+/* Modern Student Dashboard */
+.student-welcome-banner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(135deg, var(--primary-blue), var(--primary-blue-light)) !important;
+    color: white !important;
+    padding: 2.5rem !important;
+    border-radius: 20px !important;
+    overflow: hidden;
+    position: relative;
+}
+
+.student-welcome-banner h2 {
+    color: white !important;
+    font-size: 2.2rem;
+    margin-bottom: 0.5rem;
+}
+
+.student-welcome-banner p {
+    opacity: 0.9;
+    font-size: 1.1rem;
+}
+
+.welcome-status-badge {
+    background: rgba(255, 255, 255, 0.15);
+    padding: 0.6rem 1.2rem;
+    border-radius: 50px;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.status-dot {
+    width: 10px;
+    height: 10px;
+    background: #4cd137;
+    border-radius: 50%;
+    box-shadow: 0 0 10px #4cd137;
+    display: inline-block;
+}
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 1.5rem;
+}
+
+.dashboard-card {
+    padding: 1.8rem !important;
+    height: 100%;
+}
+
+.card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+
+.card-header i {
+    font-size: 1.4rem;
+    color: var(--accent-gold);
+}
+
+.card-header h3 {
+    font-size: 1.3rem;
+    margin: 0;
+}
+
+.profile-details-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+.detail-item label {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 5px;
+}
+
+.detail-item span {
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: var(--primary-blue);
+}
+
+.status-items {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+}
+
+.status-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    background: rgba(10, 37, 64, 0.03);
+    padding: 1rem;
+    border-radius: 12px;
+}
+
+.status-icon {
+    width: 45px;
+    height: 45px;
+    background: white;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent-gold);
+    font-size: 1.2rem;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+.status-info label {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.status-info span {
+    font-weight: 600;
+    color: var(--primary-blue);
+}
+
+.slideshow-card {
+    grid-column: span 1;
+}
+
+.student-slideshow {
+    border-radius: 12px;
+    overflow: hidden;
+    height: 200px;
+}
+
+.student-slideshow .slide-img {
+    height: 100%;
+    object-fit: cover;
+}
+
+@media (max-width: 992px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+    .student-welcome-banner {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1.5rem;
+        text-align: left;
+    }
+}
