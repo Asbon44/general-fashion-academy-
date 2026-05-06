@@ -235,7 +235,7 @@
                     </div>
                 </div>
                 <div class="footer-bottom">
-                    <p>&copy; 2026 General Fashion Academy. All Rights Reserved.</p>
+                    <p>&copy; 2026 General Fashion Academy. All Rights Reserved. | <a href="#" onclick="openModal('classrep-modal')" style="color:var(--accent-gold); text-decoration:none;">Class Rep Portal</a></p>
                 </div>
             </div>
         </footer>
@@ -300,9 +300,19 @@
                                         </select>
                                     </div>
                                 </div>
-                                <div class="form-group">
-                                    <label>Email</label>
-                                    <input type="email" id="reg-email" required placeholder="Enter email">
+                                <div class="form-group-row">
+                                    <div class="form-group">
+                                        <label>Level</label>
+                                        <select id="reg-level" required>
+                                            <option value="">Select Level</option>
+                                            <option value="100">Level 100</option>
+                                            <option value="200">Level 200</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Email</label>
+                                        <input type="email" id="reg-email" required placeholder="Enter email">
+                                    </div>
                                 </div>
                                 <div class="form-group">
                                     <label>Password</label>
@@ -360,6 +370,7 @@
                     <li data-admin-tab="payments"><i class="fas fa-money-bill-wave"></i> Payments</li>
                     <li data-admin-tab="announcements"><i class="fas fa-bullhorn"></i> Announcements</li>
                     <li data-admin-tab="complaints"><i class="fas fa-envelope-open-text"></i> Student Complaints</li>
+                    <li data-admin-tab="classrep-reports"><i class="fas fa-clipboard-check"></i> Class Rep Info</li>
                     <li data-admin-tab="attachments"><i class="fas fa-file-alt"></i> Shop Attachments</li>
                     <li onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</li>
                 </ul>
@@ -397,7 +408,9 @@
                 <div id="admin-students-tab" class="admin-tab-content">
                     <div class="flex-between mb-4">
                         <h2>Manage Students</h2>
-                        <button class="primary-btn small-btn" onclick="openModal('add-student-modal')">Add Student</button>
+                        <div>
+                            <button class="primary-btn small-btn" onclick="openModal('add-student-modal')">Add Student</button>
+                        </div>
                     </div>
                     <div class="table-responsive glass-card">
                         <table class="data-table">
@@ -406,6 +419,7 @@
                                     <th>Student ID</th>
                                     <th>Name</th>
                                     <th>Course</th>
+                                    <th>Level</th>
                                     <th>Status</th>
                                     <th>Actions</th>
                                 </tr>
@@ -482,6 +496,16 @@
                     <div id="admin-complaints-list">
                         <!-- Populated dynamically -->
                         <p class="text-muted">No complaints yet.</p>
+                    </div>
+                </div>
+
+                <!-- Class Rep Info Tab -->
+                <div id="admin-classrep-reports-tab" class="admin-tab-content">
+                    <h2>Information from Class Reps</h2>
+                    <p class="text-muted mb-4">View reports, attendance info, and requests submitted by Class Representatives.</p>
+                    <div id="admin-classrep-reports-list">
+                        <!-- Populated dynamically -->
+                        <p class="text-muted">No information received yet.</p>
                     </div>
                 </div>
 
@@ -569,6 +593,10 @@
                                     <label>Gender</label>
                                     <span id="st-profile-gender">...</span>
                                 </div>
+                                <div class="detail-item">
+                                    <label>Level</label>
+                                    <span id="st-profile-level">...</span>
+                                </div>
                             </div>
                         </div>
 
@@ -591,6 +619,13 @@
                                     <div class="status-info">
                                         <label>Boarding Status</label>
                                         <span id="st-profile-boarding">...</span>
+                                    </div>
+                                </div>
+                                <div class="status-item">
+                                    <div class="status-icon"><i class="fas fa-calendar-check"></i></div>
+                                    <div class="status-info">
+                                        <label>Present in School</label>
+                                        <span id="st-profile-attendance">0 times</span>
                                     </div>
                                 </div>
                             </div>
@@ -769,6 +804,149 @@
                 </div>
             </div>
         </section>
+
+        <!-- Class Rep Portal Section -->
+        <section id="classrep-section" class="page-section portal-section">
+            <div class="portal-sidebar">
+                <div class="portal-brand">
+                    <img src="logo.PNG" alt="Logo" class="sidebar-logo">
+                    <span>Class Rep</span>
+                </div>
+                <div class="student-profile-mini">
+                    <i class="fas fa-users"></i>
+                    <span id="classrep-portal-name">Level X Rep</span>
+                </div>
+                <ul class="portal-nav">
+                    <li class="active" data-classrep-tab="dashboard"><i class="fas fa-clipboard-list"></i> Register</li>
+                    <li data-classrep-tab="history"><i class="fas fa-history"></i> Attendance Logs</li>
+                    <li data-classrep-tab="info"><i class="fas fa-info-circle"></i> Information Hub</li>
+                    <li data-classrep-tab="to-admin"><i class="fas fa-envelope"></i> Information to Admin</li>
+                    <li onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</li>
+                </ul>
+            </div>
+            <div class="portal-content">
+                <!-- Dashboard Tab -->
+                <div id="classrep-dashboard-tab" class="classrep-tab-content active">
+                    <div class="flex-between mb-4">
+                        <div>
+                            <h2>Class Register</h2>
+                            <p class="text-muted">Mark attendance for students in your class.</p>
+                        </div>
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <button class="admin-btn small-btn" onclick="resetClassAttendance()" style="background:#dc3545; color:white; border:none; padding:8px 15px; border-radius:30px; cursor:pointer; font-weight:600;"><i class="fas fa-trash-alt"></i> Reset Register</button>
+                            <select id="classrep-day-select" style="padding: 8px; border-radius: 6px; border: 1px solid #ccc; font-weight: 600;">
+                                <option value="Monday">Monday</option>
+                                <option value="Tuesday">Tuesday</option>
+                                <option value="Wednesday">Wednesday</option>
+                                <option value="Thursday">Thursday</option>
+                                <option value="Friday">Friday</option>
+                                <option value="Saturday">Saturday</option>
+                                <option value="Sunday">Sunday</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="table-responsive glass-card">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Student Number</th>
+                                    <th>Name</th>
+                                    <th>Level</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="classrep-students-list">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- History Tab -->
+                <div id="classrep-history-tab" class="classrep-tab-content">
+                    <h2>Attendance Logs</h2>
+                    <p class="text-muted mb-4">View historical attendance records for your class by date.</p>
+                    
+                    <div class="glass-card mb-4" style="padding: 1.5rem;">
+                        <label style="font-weight: 600; margin-right: 10px;">Select Date to Check:</label>
+                        <input type="date" id="classrep-history-date" onchange="loadAttendanceHistory()" style="padding: 8px; border-radius: 6px; border: 1px solid #ccc; font-family: inherit;">
+                    </div>
+                    
+                    <div class="table-responsive glass-card">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Student ID</th>
+                                    <th>Name</th>
+                                    <th>Marked Day</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="classrep-history-list">
+                                <tr><td colspan="4" class="text-center text-muted">Please select a date to view attendance.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Info Tab -->
+                <div id="classrep-info-tab" class="classrep-tab-content">
+                    <h2>Information Hub</h2>
+                    <p class="text-muted mb-4">Important resources, duties, and contacts for Class Representatives.</p>
+                    
+                    <div class="courses-grid">
+                        <div class="course-card glass-card">
+                            <h3><i class="fas fa-exclamation-triangle"></i> Class Rep Duties</h3>
+                            <ul>
+                                <li>Mark attendance daily accurately.</li>
+                                <li>Report persistent absentees to admin.</li>
+                                <li>Ensure the classroom is organized.</li>
+                                <li>Coordinate with instructors for materials.</li>
+                            </ul>
+                        </div>
+                        <div class="course-card glass-card">
+                            <h3><i class="fas fa-calendar-alt"></i> Semester Schedule</h3>
+                            <ul>
+                                <li>Orientation: Week 1</li>
+                                <li>Mid-term Exams: Week 8</li>
+                                <li>Practical Projects: Week 12</li>
+                                <li>Final Examinations: Week 15</li>
+                            </ul>
+                        </div>
+                        <div class="course-card glass-card">
+                            <h3><i class="fas fa-phone-alt"></i> Emergency Contacts</h3>
+                            <ul>
+                                <li>Admin Office: 024 426 4872</li>
+                                <li>HQ Desk: generalfashionacademyaccra@gmail.com</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Information to Admin Tab -->
+                <div id="classrep-to-admin-tab" class="classrep-tab-content">
+                    <h2>Information to Admin</h2>
+                    <p class="text-muted mb-4">Send reports, attendance summaries, or requests directly to the administration.</p>
+                    
+                    <div class="glass-card mb-4" style="padding: 2rem;">
+                        <form id="form-classrep-to-admin">
+                            <div class="form-group">
+                                <label>Subject</label>
+                                <input type="text" id="cr-admin-subject" required placeholder="e.g. Weekly Attendance Report, Supply Request">
+                            </div>
+                            <div class="form-group">
+                                <label>Message / Information</label>
+                                <textarea id="cr-admin-message" required rows="6" style="width:100%; border-radius:8px; padding:12px; border:1px solid #ddd; font-family: inherit; font-size: 1rem;" placeholder="Type your detailed information here..."></textarea>
+                            </div>
+                            <button type="submit" class="cta-button primary-btn" style="width: 100%;">
+                                <i class="fas fa-paper-plane"></i> Send Information to Admin
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
     </main>
 
     <!-- Modals -->
@@ -901,6 +1079,28 @@
     <div id="lightbox-modal" class="modal lightbox-overlay" onclick="closeModal('lightbox-modal')">
         <span class="close-lightbox">&times;</span>
         <img id="lightbox-img" class="lightbox-content">
+    </div>
+
+    <!-- Class Rep Login Modal -->
+    <div id="classrep-modal" class="modal">
+        <div class="modal-content glass-card">
+            <span class="close-modal" onclick="closeModal('classrep-modal')">&times;</span>
+            <h2>Class Rep Login</h2>
+            <div class="classrep-boxes" style="display: flex; gap: 10px; margin-bottom: 20px;">
+                <button class="primary-btn" style="flex:1;" onclick="showClassrepLogin('100')">Level 100</button>
+                <button class="primary-btn" style="flex:1;" onclick="showClassrepLogin('200')">Level 200</button>
+            </div>
+            <div id="classrep-login-form" style="display:none;">
+                <h3 id="classrep-level-title"></h3>
+                <input type="hidden" id="classrep-level-input">
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="classrep-password" placeholder="Enter class rep password">
+                </div>
+                <button class="submit-btn primary-btn" onclick="loginClassrep()">Login</button>
+                <div id="classrep-error" class="error-msg"></div>
+            </div>
+        </div>
     </div>
 
     <!-- Firebase SDKs (v8 Compat) -->

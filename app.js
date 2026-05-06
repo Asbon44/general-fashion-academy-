@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Toggle Footer Visibility
         const footer = document.getElementById('main-footer');
-        const isPortal = sectionId.includes('portal') || sectionId.includes('admin') || sectionId.includes('student');
+        const isPortal = sectionId.includes('portal') || sectionId.includes('admin') || sectionId.includes('student') || sectionId.includes('classrep');
         if (footer) {
             footer.style.display = isPortal ? 'none' : 'block';
         }
@@ -50,6 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Trigger Data Loaders
         if (sectionId === 'admin-section') loadAdminData();
         if (sectionId === 'student-section') loadStudentData();
+        if (sectionId === 'classrep-section') loadClassrepData();
         
         // Close Mobile Menu
         if (navLinks) navLinks.classList.remove('active');
@@ -88,9 +89,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Portal Sidebar Nav
-        const portalNavItem = e.target.closest('li[data-admin-tab], li[data-student-tab]');
+        const portalNavItem = e.target.closest('li[data-admin-tab], li[data-student-tab], li[data-classrep-tab]');
         if (portalNavItem) {
-            const type = portalNavItem.hasAttribute('data-admin-tab') ? 'admin' : 'student';
+            const type = portalNavItem.hasAttribute('data-admin-tab') ? 'admin' : (portalNavItem.hasAttribute('data-student-tab') ? 'student' : 'classrep');
             const tabName = portalNavItem.getAttribute(`data-${type}-tab`);
             
             // UI Toggle
@@ -175,6 +176,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const surname = document.getElementById('reg-surname').value;
             const otherName = document.getElementById('reg-othername').value;
             const gender = document.getElementById('reg-gender').value;
+            const level = document.getElementById('reg-level').value;
             const email = document.getElementById('reg-email').value;
             const password = document.getElementById('reg-password').value;
             const passportFile = document.getElementById('reg-passport').files[0];
@@ -207,11 +209,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 const studentData = {
                     name: `${firstName} ${surname}${otherName ? ' ' + otherName : ''}`,
-                    firstName, surname, otherName, gender, email, password,
+                    firstName, surname, otherName, gender, level, email, password,
                     studentNumber,
                     passportPic: base64,
                     boarding: boardingStatus === 'boarder',
                     course: 'Not Assigned',
+                    attendance: 0,
                     registeredAt: new Date().toISOString()
                 };
 
@@ -373,6 +376,33 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Class Rep: Send Info to Admin
+    const classrepAdminForm = document.getElementById('form-classrep-to-admin');
+    if (classrepAdminForm) {
+        classrepAdminForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!currentUser || currentUser.type !== 'classrep') return;
+            
+            const subject = document.getElementById('cr-admin-subject').value;
+            const message = document.getElementById('cr-admin-message').value;
+
+            const reportData = {
+                level: currentUser.level,
+                subject,
+                message,
+                createdAt: new Date().toISOString()
+            };
+
+            try {
+                await db.ref('classrep_reports').push(reportData);
+                alert('Information has been successfully sent to the Admin.');
+                e.target.reset();
+            } catch (err) {
+                alert('Failed to send information. Please check your connection.');
+            }
+        });
+    }
+
     loadGallery();
     startHeroSlideshow();
     startPortalSlideshow();
@@ -457,7 +487,7 @@ async function loadAdminData() {
             if (data[id].boarding) boarding++;
             else day++;
             const tr = document.createElement('tr');
-            tr.innerHTML = `<td><strong>${data[id].studentNumber || 'N/A'}</strong></td><td>${data[id].name}</td><td>${data[id].course}</td><td>${data[id].boarding?'Boarder':'Day Student'}</td><td><button class="small-btn" style="background:#dc3545; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;" onclick="deleteStudent('${id}')">Delete</button></td>`;
+            tr.innerHTML = `<td><strong>${data[id].studentNumber || 'N/A'}</strong></td><td>${data[id].name}</td><td>${data[id].course}</td><td>Level ${data[id].level || 'N/A'}</td><td>${data[id].boarding?'Boarder':'Day Student'}</td><td><button class="small-btn primary-btn" style="padding:5px 10px; margin-right:5px; border-radius:4px; cursor:pointer;" onclick="promoteStudent('${id}', '${data[id].level || '100'}')">Update Level</button><button class="small-btn" style="background:#dc3545; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;" onclick="deleteStudent('${id}')">Delete</button></td>`;
             list.appendChild(tr);
             if (select) {
                 const opt = document.createElement('option');
@@ -547,6 +577,37 @@ async function loadAdminData() {
         }
     });
 
+    // Load Class Rep Reports
+    db.ref('classrep_reports').on('value', snap => {
+        const list = document.getElementById('admin-classrep-reports-list');
+        if (!list) return;
+        list.innerHTML = '';
+        const data = snap.val();
+        if (data) {
+            for (let id in data) {
+                const rep = data[id];
+                const div = document.createElement('div');
+                div.className = 'glass-card mb-3';
+                div.style.padding = '20px';
+                div.style.borderLeft = '5px solid var(--accent-gold)';
+                div.innerHTML = `
+                    <div class="flex-between">
+                        <strong>${rep.subject}</strong>
+                        <button class="small-btn" style="background:#dc3545; color:white; border:none; padding:4px 8px; border-radius:4px;" onclick="deleteClassrepReport('${id}')">Archive</button>
+                    </div>
+                    <p style="margin: 10px 0; font-size:0.95rem;">${rep.message}</p>
+                    <div class="flex-between" style="font-size:0.8rem; color:#666;">
+                        <span>From: Level ${rep.level} Class Rep</span>
+                        <span>${new Date(rep.createdAt).toLocaleDateString()}</span>
+                    </div>
+                `;
+                list.appendChild(div);
+            }
+        } else {
+            list.innerHTML = '<p class="text-muted">No information received yet.</p>';
+        }
+    });
+
     // Load Admin Attachments
     db.ref('attachments').on('value', snap => {
         const list = document.getElementById('admin-attachments-list');
@@ -599,6 +660,12 @@ window.deleteComplaint = async (id) => {
     }
 }
 
+window.deleteClassrepReport = async (id) => {
+    if(confirm('Archive this information?')) {
+        await db.ref('classrep_reports/' + id).remove();
+    }
+}
+
 window.deleteAnnouncement = async (id) => {
     if(confirm('Delete this announcement?')) {
         await db.ref('announcements/' + id).remove();
@@ -616,6 +683,8 @@ function loadStudentData() {
     document.getElementById('st-profile-surname').textContent = currentUser.surname || '...';
     document.getElementById('st-profile-othername').textContent = currentUser.otherName || 'None';
     document.getElementById('st-profile-gender').textContent = currentUser.gender || 'Not Set';
+    document.getElementById('st-profile-level').textContent = currentUser.level ? 'Level ' + currentUser.level : 'Not Set';
+    document.getElementById('st-profile-attendance').textContent = `${currentUser.attendance || 0} times`;
     document.getElementById('st-profile-course').textContent = currentUser.course || 'Not Assigned';
     document.getElementById('st-profile-boarding').textContent = currentUser.boarding ? 'Boarder' : 'Day Student';
     
@@ -701,4 +770,159 @@ window.openModal = id => document.getElementById(id).classList.add('active');
 window.closeModal = id => document.getElementById(id).classList.remove('active');
 window.deleteStudent = id => confirm('Delete student?') && db.ref('students/'+id).remove();
 window.deletePayment = id => confirm('Are you sure you want to delete this payment record? This will also remove it from the student portal.') && db.ref('payments/'+id).remove();
+
+window.promoteStudent = async (id, currentLevel) => {
+    let newLevel = prompt("Enter new level for this student (e.g., 100 or 200):", currentLevel);
+    if (newLevel) {
+        await db.ref('students/' + id).update({ level: newLevel });
+        alert("Student level updated successfully!");
+    }
+}
+
+window.resetClassAttendance = async () => {
+    if (!currentUser || currentUser.type !== 'classrep') return;
+    if (confirm(`Are you sure you want to delete the semester's register and reset all attendance to 0 for Level ${currentUser.level}?`)) {
+        const snap = await db.ref('students').once('value');
+        const data = snap.val();
+        if (data) {
+            const updates = {};
+            for (let id in data) {
+                if (data[id].level === currentUser.level) {
+                    updates[id + '/attendance'] = 0;
+                    updates[id + '/attendanceLogs'] = null;
+                }
+            }
+            await db.ref('students').update(updates);
+            alert(`Level ${currentUser.level} student attendance registers have been reset.`);
+        }
+    }
+}
+
 function fileToBase64(file) { return new Promise((res, rej) => { const r = new FileReader(); r.readAsDataURL(file); r.onload = () => res(r.result); r.onerror = e => rej(e); }); }
+
+// Class Rep Portal Functions
+window.showClassrepLogin = (level) => {
+    document.getElementById('classrep-login-form').style.display = 'block';
+    document.getElementById('classrep-level-title').textContent = `Level ${level} Login`;
+    document.getElementById('classrep-level-input').value = level;
+    document.getElementById('classrep-error').textContent = '';
+};
+
+window.loginClassrep = () => {
+    const level = document.getElementById('classrep-level-input').value;
+    const pwd = document.getElementById('classrep-password').value;
+    const errorMsg = document.getElementById('classrep-error');
+    
+    if ((level === '100' && pwd === 'Classrep100') || (level === '200' && pwd === 'Classrep200')) {
+        currentUser = { type: 'classrep', level: level };
+        closeModal('classrep-modal');
+        document.getElementById('classrep-password').value = '';
+        navigateTo('classrep-section');
+    } else {
+        errorMsg.textContent = 'Invalid Password';
+    }
+};
+
+window.markPresent = async (studentId) => {
+    if (!currentUser || currentUser.type !== 'classrep') return;
+    const day = document.getElementById('classrep-day-select').value;
+    try {
+        const ref = db.ref('students/' + studentId);
+        const snap = await ref.once('value');
+        const data = snap.val();
+        if (data) {
+            const today = new Date().toISOString().split('T')[0];
+            const logs = data.attendanceLogs || {};
+            
+            let newAttendance = data.attendance || 0;
+            if (!logs[today]) {
+                newAttendance += 1;
+            }
+            
+            logs[today] = { day: day, timestamp: new Date().toISOString() };
+            await ref.update({ attendance: newAttendance, attendanceLogs: logs });
+            alert(`Student marked as present for ${day} (${today})!`);
+        }
+    } catch (e) {
+        alert('Error marking present');
+    }
+};
+
+window.loadAttendanceHistory = async () => {
+    if (!currentUser || currentUser.type !== 'classrep') return;
+    const selectedDate = document.getElementById('classrep-history-date').value;
+    const list = document.getElementById('classrep-history-list');
+    if (!list) return;
+    
+    if (!selectedDate) {
+        list.innerHTML = '<tr><td colspan="4" class="text-center text-muted">Please select a date to view attendance.</td></tr>';
+        return;
+    }
+    
+    const snap = await db.ref('students').once('value');
+    list.innerHTML = '';
+    const data = snap.val();
+    let foundStudents = false;
+    
+    if (data) {
+        for (let id in data) {
+            if (data[id].level === currentUser.level) {
+                foundStudents = true;
+                const student = data[id];
+                const logs = student.attendanceLogs || {};
+                const isPresent = !!logs[selectedDate];
+                const dayMarked = isPresent ? logs[selectedDate].day : '-';
+                const statusHtml = isPresent ? '<span style="color: #28a745; font-weight: bold;"><i class="fas fa-check-circle"></i> Present</span>' : '<span style="color: #dc3545; font-weight: bold;"><i class="fas fa-times-circle"></i> Absent</span>';
+                
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><strong>${student.studentNumber || 'N/A'}</strong></td>
+                    <td>${student.name}</td>
+                    <td>${dayMarked}</td>
+                    <td>${statusHtml}</td>
+                `;
+                list.appendChild(tr);
+            }
+        }
+    }
+    
+    if (!foundStudents) {
+        list.innerHTML = `<tr><td colspan="4" class="text-center text-muted">No students found in Level ${currentUser.level}.</td></tr>`;
+    }
+};
+
+window.loadClassrepData = () => {
+    if (!currentUser || currentUser.type !== 'classrep') return;
+    document.getElementById('classrep-portal-name').textContent = `Level ${currentUser.level} Rep`;
+    const today = new Date().toISOString().split('T')[0];
+    
+    db.ref('students').on('value', snap => {
+        const list = document.getElementById('classrep-students-list');
+        if (!list) return;
+        list.innerHTML = '';
+        const data = snap.val();
+        let found = false;
+        for (let id in data) {
+            if (data[id].level === currentUser.level) {
+                found = true;
+                const logs = data[id].attendanceLogs || {};
+                const isPresentToday = !!logs[today];
+                const btnHtml = isPresentToday ? 
+                    `<button class="small-btn" style="background:#28a745; color:white; border:none; padding:5px 10px; border-radius:4px;" disabled><i class="fas fa-check"></i> Marked</button>` :
+                    `<button class="small-btn primary-btn" onclick="markPresent('${id}')">Mark Present</button>`;
+                    
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><strong>${data[id].studentNumber || 'N/A'}</strong></td>
+                    <td>${data[id].name}</td>
+                    <td>Level ${data[id].level}</td>
+                    <td>${btnHtml}</td>
+                `;
+                list.appendChild(tr);
+            }
+        }
+        if (!found) {
+            list.innerHTML = '<tr><td colspan="4" class="text-center text-muted">No students found in this level.</td></tr>';
+        }
+    });
+};

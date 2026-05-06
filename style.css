@@ -511,12 +511,12 @@ small {
     background: var(--light-bg);
 }
 
-.admin-tab-content, .student-tab-content {
+.admin-tab-content, .student-tab-content, .classrep-tab-content {
     display: none;
     animation: fadeIn 0.3s;
 }
 
-.admin-tab-content.active, .student-tab-content.active {
+.admin-tab-content.active, .student-tab-content.active, .classrep-tab-content.active {
     display: block;
 }
 
