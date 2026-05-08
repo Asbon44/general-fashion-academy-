@@ -11,6 +11,7 @@ const db = firebase.database();
 
 // State
 let currentUser = null;
+let activeDraftId = null; 
 
 // Initialization
 document.addEventListener('DOMContentLoaded', () => {
@@ -471,7 +472,14 @@ function loadGallery() {
     }
 }
 
-async function loadAdminData() {
+let currentLevelFilter = 'all';
+
+window.filterStudents = (level) => {
+    currentLevelFilter = level;
+    loadAdminData();
+};
+
+window.loadAdminData = () => {
     if (!currentUser || currentUser.type !== 'admin') return;
     db.ref('students').on('value', snap => {
         const list = document.getElementById('admin-students-list');
@@ -480,14 +488,22 @@ async function loadAdminData() {
         list.innerHTML = '';
         if (select) select.innerHTML = '<option value="">Select Student...</option>';
         
-        let total = 0, boarding = 0, day = 0;
+        let total = 0, boarding = 0, day = 0, level100 = 0, level200 = 0;
         const data = snap.val();
         for (let id in data) {
             total++;
             if (data[id].boarding) boarding++;
             else day++;
+            
+            if (data[id].level === '100') level100++;
+            else if (data[id].level === '200') level200++;
+
+            // Apply Filter
+            if (currentLevelFilter !== 'all' && data[id].level !== currentLevelFilter) continue;
+
             const tr = document.createElement('tr');
-            tr.innerHTML = `<td><strong>${data[id].studentNumber || 'N/A'}</strong></td><td>${data[id].name}</td><td>${data[id].course}</td><td>Level ${data[id].level || 'N/A'}</td><td>${data[id].boarding?'Boarder':'Day Student'}</td><td><button class="small-btn primary-btn" style="padding:5px 10px; margin-right:5px; border-radius:4px; cursor:pointer;" onclick="promoteStudent('${id}', '${data[id].level || '100'}')">Update Level</button><button class="small-btn" style="background:#dc3545; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;" onclick="deleteStudent('${id}')">Delete</button></td>`;
+            const courseDisplay = data[id].courseStatus === 'Assigned' ? data[id].course : '<span style="color:#dc3545; font-weight:600;">Not Assigned</span>';
+            tr.innerHTML = `<td><strong>${data[id].studentNumber || 'N/A'}</strong></td><td>${data[id].name}</td><td>${courseDisplay}</td><td>Level ${data[id].level || 'N/A'}</td><td>${data[id].boarding?'Boarder':'Day Student'}</td><td><button class="small-btn primary-btn" style="padding:5px 10px; margin-right:5px; border-radius:4px; cursor:pointer;" onclick="promoteStudent('${id}', '${data[id].level || '100'}')">Update Level</button><button class="small-btn" style="background:#dc3545; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;" onclick="deleteStudent('${id}')">Delete</button></td>`;
             list.appendChild(tr);
             if (select) {
                 const opt = document.createElement('option');
@@ -498,6 +514,24 @@ async function loadAdminData() {
         document.getElementById('stat-total-students').textContent = total;
         document.getElementById('stat-boarding').textContent = boarding;
         document.getElementById('stat-day').textContent = day;
+        
+        const l100Box = document.getElementById('stat-level-100');
+        const l200Box = document.getElementById('stat-level-200');
+        if (l100Box) l100Box.textContent = level100;
+        if (l200Box) l200Box.textContent = level200;
+
+        // Update Filter UI
+        const indicator = document.getElementById('admin-filter-indicator');
+        const clearBtn = document.getElementById('btn-clear-filter');
+        if (indicator && clearBtn) {
+            if (currentLevelFilter === 'all') {
+                indicator.textContent = '';
+                clearBtn.style.display = 'none';
+            } else {
+                indicator.textContent = `Currently showing Level ${currentLevelFilter} only`;
+                clearBtn.style.display = 'block';
+            }
+        }
     });
 
     db.ref('payments').on('value', async snap => {
@@ -605,6 +639,118 @@ async function loadAdminData() {
             }
         } else {
             list.innerHTML = '<p class="text-muted">No information received yet.</p>';
+        }
+    });
+
+    // Load Attendance Snapshots for Admin
+    db.ref('attendance_snapshots').on('value', snap => {
+        const grid = document.getElementById('admin-attendance-snapshots-list');
+        if (!grid) return;
+        
+        const data = snap.val();
+        grid.innerHTML = '';
+        
+        if (data) {
+            // Sort by date descending
+            const sorted = Object.entries(data).sort((a, b) => new Date(b[1].timestamp) - new Date(a[1].timestamp));
+            
+            sorted.forEach(([id, s]) => {
+                const card = document.createElement('div');
+                card.className = 'course-category-card glass-card';
+                card.style.padding = '1.5rem';
+                
+                card.innerHTML = `
+                    <div style="font-size: 0.8rem; color: #666; margin-bottom: 5px;">Level ${s.level} • ${s.day}</div>
+                    <h3 style="margin-bottom: 10px; color: var(--primary-blue);"><i class="fas fa-calendar-check"></i> ${new Date(s.date).toLocaleDateString()}</h3>
+                    <div style="font-size: 0.85rem; margin-bottom: 15px;">
+                        <span class="status-pill present">${s.records.length} Students marked</span>
+                    </div>
+                    <div style="display: flex; gap: 5px;">
+                        <button class="small-btn primary-btn" style="flex:1; padding:6px;" onclick="viewAdminSnapshot('${id}')">View List</button>
+                        <button class="small-btn" style="flex:1; padding:6px; background:#dc3545; color:white; border:none; border-radius:4px;" onclick="deleteAttendanceSnapshot('${id}')"><i class="fas fa-trash"></i> Delete</button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        } else {
+            grid.innerHTML = '<p class="text-muted">No saved registers found.</p>';
+        }
+    });
+
+    // Load Hostel Bookings for Admin
+    db.ref('hostel_bookings').on('value', snap => {
+        const list = document.getElementById('admin-hostel-list');
+        const grid = document.getElementById('admin-hostel-occupancy-grid');
+        const totalBox = document.getElementById('admin-hostel-total');
+        if (!list) return;
+
+        list.innerHTML = '';
+        if (grid) grid.innerHTML = '';
+
+        const data = snap.val();
+        let count = 0;
+        const roomGroups = {};
+
+        if (data) {
+            for (let id in data) {
+                count++;
+                const b = data[id];
+
+                if (!roomGroups[b.hostel]) roomGroups[b.hostel] = {};
+                if (!roomGroups[b.hostel][b.room]) roomGroups[b.hostel][b.room] = [];
+                roomGroups[b.hostel][b.room].push(b.studentName);
+
+                const tr = document.createElement('tr');
+                const statusPill = b.status === 'Approved' ? '<span class="status-pill present">Approved</span>' : '<span class="status-pill warning" style="background:#f39c12; color:white;">Pending</span>';
+                const actionButtons = b.status === 'Pending' ? 
+                    `<button class="small-btn" style="background:#28a745; color:white; border:none; padding:5px 10px; border-radius:4px; margin-right:5px;" onclick="approveHostelBooking('${id}')"><i class="fas fa-check"></i> Accept</button>` : '';
+                
+                tr.innerHTML = `
+                    <td>${b.studentName}</td>
+                    <td><strong>${b.studentNumber || 'N/A'}</strong></td>
+                    <td>${b.hostel}</td>
+                    <td>${b.room}</td>
+                    <td>${statusPill}</td>
+                    <td>
+                        ${actionButtons}
+                        <button class="small-btn" style="background:#dc3545; color:white; border:none; padding:5px 10px; border-radius:4px;" onclick="deleteHostelBooking('${id}')">Cancel/Remove</button>
+                    </td>
+                `;
+                list.appendChild(tr);
+            }
+        }
+
+        if (grid) {
+            for (let hostel in roomGroups) {
+                for (let room in roomGroups[hostel]) {
+                    const studentNames = roomGroups[hostel][room];
+                    const capacity = hostelCapacity[hostel][room];
+                    const card = document.createElement('div');
+                    card.className = 'course-category-card glass-card';
+                    card.style.padding = '15px';
+                    card.innerHTML = `
+                        <div class="category-header mb-2">
+                            <i class="fas fa-door-open"></i>
+                            <h4 style="font-size:1rem;">${hostel} - ${room}</h4>
+                        </div>
+                        <div class="mb-2">
+                            <span class="status-pill ${studentNames.length >= capacity ? 'absent' : 'present'}">
+                                ${studentNames.length}/${capacity} Confirmed
+                            </span>
+                        </div>
+                        <ul style="font-size: 0.85rem; color: #555; padding-left: 15px; margin-top: 10px;">
+                            ${studentNames.map(name => `<li><i class="fas fa-user" style="font-size:0.7rem; color:var(--primary-blue);"></i> ${name}</li>`).join('')}
+                        </ul>
+                    `;
+                    grid.appendChild(card);
+                }
+            }
+        }
+
+        if (totalBox) totalBox.textContent = count;
+        if (count === 0) {
+            list.innerHTML = '<tr><td colspan="6" class="text-center text-muted">No hostel bookings found.</td></tr>';
+            if (grid) grid.innerHTML = '<p class="text-muted">No rooms currently occupied.</p>';
         }
     });
 
@@ -740,8 +886,267 @@ function loadStudentData() {
         }
     });
 
+    // Load Course Registration
+    loadCourseRegistration();
+
+    // Hostel Initialization
+    loadHostelStatus();
+
     startStudentSlideshow();
 }
+
+const hostelCapacity = {
+    "Atta Kusi": {
+        "Room 1": 8, "Room 2": 8, "Room 3": 8, "Room 4": 8,
+        "Room 5": 6, "Room 6": 14, "Room 7": 6, "Room 8": 4,
+        "Room 9": 6, "Room 10": 8, "Room 11": 12
+    },
+    "Adomako": {
+        "Room 1": 6, "Room 2": 8, "Room 3": 8, "Room 4": 8,
+        "Room 5": 8, "Room 6": 6
+    }
+};
+
+window.updateRoomOptions = async () => {
+    const hostel = document.getElementById('hostel-select').value;
+    const roomSelect = document.getElementById('room-select');
+    if (!roomSelect) return;
+    
+    roomSelect.innerHTML = '<option value="">-- Loading Rooms... --</option>';
+    
+    if (!hostel) {
+        roomSelect.innerHTML = '<option value="">-- Choose Hostel First --</option>';
+        return;
+    }
+
+    const rooms = hostelCapacity[hostel];
+    let html = '<option value="">-- Choose Room --</option>';
+    
+    // Get all current bookings to check occupancy
+    const snap = await db.ref('hostel_bookings').once('value');
+    const allBookings = snap.val() || {};
+    
+    for (let roomName in rooms) {
+        const capacity = rooms[roomName];
+        const occupancy = Object.values(allBookings).filter(b => b.hostel === hostel && b.room === roomName).length;
+        const isFull = occupancy >= capacity;
+        
+        html += `<option value="${roomName}" ${isFull ? 'disabled' : ''}>
+            ${roomName} (${occupancy}/${capacity}) ${isFull ? '- FULL' : ''}
+        </option>`;
+    }
+    
+    roomSelect.innerHTML = html;
+};
+
+window.bookHostelRoom = async () => {
+    if (!currentUser || currentUser.type !== 'student') return;
+    
+    const hostel = document.getElementById('hostel-select').value;
+    const room = document.getElementById('room-select').value;
+
+    if (!hostel || !room) {
+        alert("Please select both a hostel and a room.");
+        return;
+    }
+
+    try {
+        // Double check occupancy right before booking
+        const snap = await db.ref('hostel_bookings').once('value');
+        const allBookings = snap.val() || {};
+        const occupancy = Object.values(allBookings).filter(b => b.hostel === hostel && b.room === room).length;
+        const capacity = hostelCapacity[hostel][room];
+
+        if (occupancy >= capacity) {
+            alert("Sorry, this room just became full. Please choose another.");
+            updateRoomOptions();
+            return;
+        }
+
+        const bookingData = {
+            studentId: currentUser.id,
+            studentName: currentUser.name,
+            studentNumber: currentUser.studentNumber,
+            hostel: hostel,
+            room: room,
+            status: 'Pending',
+            timestamp: new Date().toISOString()
+        };
+
+        await db.ref('hostel_bookings').child(currentUser.id).set(bookingData);
+        alert("Your room request has been submitted for approval.");
+        loadHostelStatus();
+    } catch (e) {
+        alert("Booking failed. Please try again.");
+    }
+};
+
+window.cancelMyHostelRequest = async () => {
+    if (!currentUser) return;
+    if (confirm("Are you sure you want to cancel your hostel request?")) {
+        await db.ref('hostel_bookings').child(currentUser.id).remove();
+        alert("Request cancelled.");
+        loadHostelStatus();
+    }
+};
+
+window.approveHostelBooking = async (studentId) => {
+    try {
+        await db.ref('hostel_bookings').child(studentId).update({ status: 'Approved' });
+        alert("Booking approved successfully!");
+    } catch (e) {
+        alert("Failed to approve booking.");
+    }
+};
+
+window.loadHostelStatus = async () => {
+    if (!currentUser || currentUser.type !== 'student') return;
+    
+    const snap = await db.ref('hostel_bookings').child(currentUser.id).once('value');
+    const booking = snap.val();
+    
+    const infoBox = document.getElementById('hostel-info-box');
+    const successBox = document.getElementById('hostel-success-box');
+    const details = document.getElementById('assigned-hostel-details');
+    const badge = document.getElementById('hostel-status-badge');
+    
+    const icon = document.getElementById('hostel-status-icon');
+    const title = document.getElementById('hostel-status-title');
+    const msg = document.getElementById('hostel-status-msg');
+
+    if (booking) {
+        if (infoBox) infoBox.style.display = 'none';
+        if (successBox) successBox.style.display = 'block';
+        if (details) details.textContent = `${booking.hostel} - ${booking.room}`;
+        
+        if (booking.status === 'Approved') {
+            if (icon) icon.innerHTML = '<i class="fas fa-check-circle"></i>';
+            if (icon) icon.style.color = '#28a745';
+            if (title) title.textContent = 'Booking Confirmed!';
+            if (title) title.style.color = '#28a745';
+            if (msg) msg.textContent = 'Your room assignment has been approved. Welcome to the hostel!';
+            if (badge) badge.innerHTML = '<span class="status-pill present">Approved</span>';
+            const cancelBtn = document.getElementById('btn-cancel-own-booking');
+            if (cancelBtn) cancelBtn.style.display = 'none';
+        } else {
+            if (icon) icon.innerHTML = '<i class="fas fa-clock"></i>';
+            if (icon) icon.style.color = '#f39c12';
+            if (title) title.textContent = 'Request Pending';
+            if (title) title.style.color = '#f39c12';
+            if (msg) msg.textContent = 'Your request is being reviewed by the administration.';
+            if (badge) badge.innerHTML = '<span class="status-pill warning" style="background:#f39c12; color:white;">Pending Approval</span>';
+        }
+    } else {
+        if (infoBox) infoBox.style.display = 'block';
+        if (successBox) successBox.style.display = 'none';
+        if (badge) badge.innerHTML = '<span class="status-pill absent">Not Assigned</span>';
+    }
+};
+
+window.deleteHostelBooking = async (studentId) => {
+    if (confirm("Are you sure you want to remove this hostel booking?")) {
+        await db.ref('hostel_bookings').child(studentId).remove();
+        alert("Booking removed.");
+    }
+};
+
+window.toggleCourseSelection = (card) => {
+    if (currentUser.courseStatus === 'Assigned') return; // Prevent toggling if already registered
+    card.classList.toggle('selected');
+    const icon = card.querySelector('.fa-check-circle');
+    if (card.classList.contains('selected')) {
+        icon.style.color = '#28a745';
+        card.style.borderColor = '#28a745';
+        card.style.background = '#e8f5e9';
+    } else {
+        icon.style.color = '#ccc';
+        card.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+        card.style.background = 'rgba(255, 255, 255, 0.85)';
+    }
+};
+
+window.registerStudentCourses = async () => {
+    if (!currentUser || currentUser.type !== 'student') return;
+    
+    const selectedCards = document.querySelectorAll('.course-category-card.selected');
+    if (selectedCards.length === 0) {
+        alert("Please tap on the courses to select them before registering.");
+        return;
+    }
+
+    const selectedCourses = Array.from(selectedCards).map(card => card.getAttribute('data-course-name'));
+    const level = currentUser.level || "100";
+
+    try {
+        await db.ref(`students/${currentUser.id}`).update({
+            course: `Level ${level} Curriculum (${selectedCourses.length} courses)`,
+            registeredCourses: selectedCourses,
+            registrationLevel: level,
+            courseStatus: 'Assigned'
+        });
+        
+        currentUser.course = `Level ${level} Curriculum (${selectedCourses.length} courses)`;
+        currentUser.registeredCourses = selectedCourses;
+        currentUser.registrationLevel = level;
+        currentUser.courseStatus = 'Assigned';
+        
+        alert(`Successfully registered for ${selectedCourses.length} Level ${level} courses!`);
+        loadCourseRegistration();
+        loadStudentData();
+    } catch (err) {
+        alert("Registration failed. Check connection.");
+    }
+};
+
+window.loadCourseRegistration = () => {
+    if (!currentUser || currentUser.type !== 'student') return;
+    
+    const level = currentUser.level || "100";
+    const regLevelNum = document.getElementById('reg-level-num');
+    const coursesList = document.getElementById('courses-to-register-list');
+    const registerBtn = document.getElementById('btn-register-courses');
+    const alreadyMsg = document.getElementById('already-registered-msg');
+    const summary = document.getElementById('registered-courses-summary');
+    const statusBadge = document.getElementById('course-reg-status-badge');
+
+    if (!regLevelNum || !coursesList) return;
+
+    regLevelNum.textContent = level;
+    
+    const isRegisteredForCurrentLevel = currentUser.registrationLevel === level && currentUser.courseStatus === 'Assigned';
+
+    if (isRegisteredForCurrentLevel) {
+        coursesList.style.display = 'none';
+        registerBtn.style.display = 'none';
+        alreadyMsg.style.display = 'block';
+        summary.textContent = `You are currently registered for ${currentUser.registeredCourses?.length || 0} Level ${level} courses: ${currentUser.registeredCourses?.join(', ') || ''}.`;
+        if (statusBadge) statusBadge.innerHTML = '<span class="status-pill present">Status: Assigned</span>';
+    } else {
+        coursesList.style.display = 'grid';
+        registerBtn.style.display = 'block';
+        alreadyMsg.style.display = 'none';
+        if (statusBadge) statusBadge.innerHTML = '<span class="status-pill absent">Status: Not Assigned</span>';
+        
+        const courses = level === "100" ? [
+            "Garment Construction & Design", "Dress Making (Ladies Wear)", 
+            "Tailoring (Men's Wear)", "Millinery", "Bead Making", 
+            "Occasional Wear", "Modeling"
+        ] : [
+            "Wedding Gown", "Suit Making", "Boning", 
+            "Batik Making", "Decoration", "Tie and Dye"
+        ];
+
+        coursesList.innerHTML = courses.map(c => `
+            <div class="course-category-card glass-card clickable-course" 
+                 style="padding: 1rem; cursor: pointer; border: 2px solid transparent; transition: all 0.3s ease;" 
+                 onclick="toggleCourseSelection(this)" data-course-name="${c}">
+                <h4 style="font-size: 0.9rem; display: flex; justify-content: space-between; align-items: center;">
+                    ${c} <i class="fas fa-check-circle" style="color: #ccc;"></i>
+                </h4>
+            </div>
+        `).join('');
+    }
+};
 
 let slideshowInterval;
 function startStudentSlideshow() {
@@ -773,9 +1178,14 @@ window.deletePayment = id => confirm('Are you sure you want to delete this payme
 
 window.promoteStudent = async (id, currentLevel) => {
     let newLevel = prompt("Enter new level for this student (e.g., 100 or 200):", currentLevel);
-    if (newLevel) {
-        await db.ref('students/' + id).update({ level: newLevel });
-        alert("Student level updated successfully!");
+    if (newLevel && newLevel !== currentLevel) {
+        // When promoted, reset course status so they must register for new level courses
+        await db.ref('students/' + id).update({ 
+            level: newLevel,
+            courseStatus: 'Not Assigned',
+            course: 'Pending New Level Registration'
+        });
+        alert("Student level updated! They will need to register for Level " + newLevel + " courses in their portal.");
     }
 }
 
@@ -796,6 +1206,39 @@ window.resetClassAttendance = async () => {
             alert(`Level ${currentUser.level} student attendance registers have been reset.`);
         }
     }
+}
+
+window.switchStudentTab = (tabId) => {
+    document.querySelectorAll('.student-tab-content').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('[data-student-tab]').forEach(t => t.classList.remove('active'));
+    
+    const targetTab = document.getElementById(`student-${tabId}-tab`);
+    const targetLink = document.querySelector(`[data-student-tab="${tabId}"]`);
+    
+    if (targetTab) targetTab.classList.add('active');
+    if (targetLink) targetLink.classList.add('active');
+}
+
+window.switchAdminTab = (tabId) => {
+    document.querySelectorAll('.admin-tab-content').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('[data-admin-tab]').forEach(t => t.classList.remove('active'));
+    
+    const targetTab = document.getElementById(`admin-${tabId}-tab`);
+    const targetLink = document.querySelector(`[data-admin-tab="${tabId}"]`);
+    
+    if (targetTab) targetTab.classList.add('active');
+    if (targetLink) targetLink.classList.add('active');
+}
+
+function switchClassrepTab(tabId) {
+    document.querySelectorAll('.classrep-tab-content').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('[data-classrep-tab]').forEach(t => t.classList.remove('active'));
+    
+    const targetTab = document.getElementById(`classrep-${tabId}-tab`);
+    const targetLink = document.querySelector(`[data-classrep-tab="${tabId}"]`);
+    
+    if (targetTab) targetTab.classList.add('active');
+    if (targetLink) targetLink.classList.add('active');
 }
 
 function fileToBase64(file) { return new Promise((res, rej) => { const r = new FileReader(); r.readAsDataURL(file); r.onload = () => res(r.result); r.onerror = e => rej(e); }); }
@@ -823,79 +1266,350 @@ window.loginClassrep = () => {
     }
 };
 
-window.markPresent = async (studentId) => {
+window.markAttendance = async (studentId, status) => {
     if (!currentUser || currentUser.type !== 'classrep') return;
-    const day = document.getElementById('classrep-day-select').value;
+    
+    const today = new Date().toISOString().split('T')[0];
+    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const day = days[new Date().getDay()];
+
     try {
         const ref = db.ref('students/' + studentId);
         const snap = await ref.once('value');
         const data = snap.val();
         if (data) {
-            const today = new Date().toISOString().split('T')[0];
             const logs = data.attendanceLogs || {};
-            
             let newAttendance = data.attendance || 0;
-            if (!logs[today]) {
+            const previousStatus = logs[today]?.status;
+
+            if (previousStatus !== 'Present' && status === 'Present') {
                 newAttendance += 1;
+            } else if (previousStatus === 'Present' && status === 'Absent') {
+                newAttendance = Math.max(0, newAttendance - 1);
             }
             
-            logs[today] = { day: day, timestamp: new Date().toISOString() };
+            logs[today] = { 
+                status: status, 
+                day: day, 
+                timestamp: new Date().toISOString() 
+            };
             await ref.update({ attendance: newAttendance, attendanceLogs: logs });
-            alert(`Student marked as present for ${day} (${today})!`);
         }
     } catch (e) {
-        alert('Error marking present');
+        console.error(e);
+        alert('Error marking attendance');
+    }
+};
+
+window.saveProgress = async () => {
+    if (!currentUser || currentUser.type !== 'classrep') return;
+    
+    const todayISO = new Date().toISOString().split('T')[0];
+    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const dayName = days[new Date().getDay()];
+
+    try {
+        const snap = await db.ref('students').once('value');
+        const students = snap.val();
+        const records = [];
+
+        if (students) {
+            for (let id in students) {
+                if (students[id].level === currentUser.level) {
+                    const logs = students[id].attendanceLogs || {};
+                    records.push({
+                        studentId: id,
+                        status: logs[todayISO]?.status || 'Not Marked'
+                    });
+                }
+            }
+        }
+
+        const draftData = {
+            level: currentUser.level,
+            date: todayISO,
+            day: dayName,
+            timestamp: new Date().toISOString(),
+            records: records
+        };
+
+        await db.ref('attendance_drafts').push(draftData);
+        alert("Progress saved as a DRAFT. You can find it in the 'Drafts & Progress' tab to resume later.");
+        loadAttendanceDrafts();
+    } catch (e) {
+        alert("Failed to save progress.");
+    }
+};
+
+window.loadAttendanceDrafts = async () => {
+    if (!currentUser || currentUser.type !== 'classrep') return;
+    const list = document.getElementById('classrep-drafts-list');
+    if (!list) return;
+
+    db.ref('attendance_drafts').orderByChild('level').equalTo(currentUser.level).on('value', snap => {
+        const drafts = snap.val();
+        list.innerHTML = '';
+        
+        if (drafts) {
+            const sorted = Object.entries(drafts).sort((a,b) => new Date(b[1].timestamp) - new Date(a[1].timestamp));
+            sorted.forEach(([id, d]) => {
+                const card = document.createElement('div');
+                card.className = 'course-category-card glass-card';
+                card.style.padding = '1.5rem';
+                
+                card.innerHTML = `
+                    <div style="font-size: 0.8rem; color: #666; margin-bottom: 5px;">${d.day} • Draft</div>
+                    <h3 style="margin-bottom: 10px; color: var(--primary-blue);"><i class="fas fa-edit"></i> ${new Date(d.date).toLocaleDateString()}</h3>
+                    <div style="font-size: 0.85rem; margin-bottom: 15px;">
+                        <span style="background:var(--primary-blue-light); color:white; padding:3px 10px; border-radius:12px;">${d.records.length} Students marked</span>
+                    </div>
+                    <button class="small-btn primary-btn" style="width:100%;" onclick="resumeDraft('${id}')">Resume Marking</button>
+                    <button class="small-btn" style="width:100%; margin-top:5px; background:#eee; color:#666; border:none;" onclick="deleteDraft('${id}')">Discard</button>
+                `;
+                list.appendChild(card);
+            });
+        } else {
+            list.innerHTML = '<p class="text-muted">No active drafts found.</p>';
+        }
+    });
+};
+
+window.resumeDraft = async (id) => {
+    const snap = await db.ref('attendance_drafts/' + id).once('value');
+    const d = snap.val();
+    if (!d) return;
+
+    if (confirm("Resume this draft? This will overwrite any current markings on your register for today.")) {
+        const updates = {};
+        const todayISO = new Date().toISOString().split('T')[0];
+        const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        const day = days[new Date().getDay()];
+
+        d.records.forEach(rec => {
+            updates[`students/${rec.studentId}/attendanceLogs/${todayISO}`] = {
+                status: rec.status,
+                day: day,
+                timestamp: new Date().toISOString()
+            };
+        });
+
+        await db.ref().update(updates);
+        activeDraftId = id; // Store the ID of the resumed draft
+        
+        alert("Draft loaded into register! Switch to the 'Register' tab to finish marking.");
+        
+        // Visual indicator
+        const badge = document.getElementById('register-status-badge');
+        if (badge) badge.style.display = 'inline-block';
+        
+        // Navigate back to register
+        switchClassrepTab('dashboard');
+    }
+};
+
+window.deleteDraft = async (id) => {
+    if (confirm("Are you sure you want to discard this draft?")) {
+        await db.ref('attendance_drafts/' + id).remove();
+        alert("Draft discarded.");
+    }
+};
+
+window.saveDayAttendance = async () => {
+    if (!currentUser || currentUser.type !== 'classrep') return;
+    
+    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const dayName = days[new Date().getDay()];
+    const todayISO = new Date().toISOString().split('T')[0];
+
+    if (!confirm(`FINAL SUBMISSION: Are you sure you want to PERMANENTLY save and close this register? \n\nOnce submitted, this session CANNOT be edited, and it will be sent directly to the Admin for review.`)) {
+        return;
+    }
+
+    try {
+        const snap = await db.ref('students').once('value');
+        const students = snap.val();
+        const attendanceRecord = [];
+        const updates = {};
+
+        if (students) {
+            for (let id in students) {
+                if (students[id].level === currentUser.level) {
+                    const logs = students[id].attendanceLogs || {};
+                    const statusToday = logs[todayISO]?.status || 'Not Marked';
+                    
+                    attendanceRecord.push({
+                        studentId: id,
+                        name: students[id].name,
+                        studentNumber: students[id].studentNumber,
+                        status: statusToday
+                    });
+
+                    // Clear today's log for the "clean sheet"
+                    updates[`students/${id}/attendanceLogs/${todayISO}`] = null;
+                }
+            }
+        }
+
+        if (attendanceRecord.length === 0) {
+            alert('No students found to save.');
+            return;
+        }
+
+        // 1. Store the snapshot in a dedicated history table
+        const snapshotData = {
+            level: currentUser.level,
+            day: dayName,
+            date: todayISO,
+            timestamp: new Date().toISOString(),
+            savedBy: `Level ${currentUser.level} Rep`,
+            records: attendanceRecord
+        };
+        await db.ref('attendance_snapshots').push(snapshotData);
+
+        // 2. Clear the current register (Clean Sheet)
+        await db.ref().update(updates);
+
+        // 3. Clear the draft if one was active
+        if (activeDraftId) {
+            await db.ref('attendance_drafts/' + activeDraftId).remove();
+            activeDraftId = null;
+            const badge = document.getElementById('register-status-badge');
+            if (badge) badge.style.display = 'none';
+        }
+        
+        alert(`SUCCESS!\nAttendance for ${dayName} has been stored.\nA clean sheet is now ready.`);
+        loadClassrepData(); 
+    } catch (e) {
+        console.error(e);
+        alert('Failed to save and clear attendance.');
     }
 };
 
 window.loadAttendanceHistory = async () => {
     if (!currentUser || currentUser.type !== 'classrep') return;
-    const selectedDate = document.getElementById('classrep-history-date').value;
-    const list = document.getElementById('classrep-history-list');
-    if (!list) return;
+    const grid = document.getElementById('history-sessions-grid');
+    if (!grid) return;
     
-    if (!selectedDate) {
-        list.innerHTML = '<tr><td colspan="4" class="text-center text-muted">Please select a date to view attendance.</td></tr>';
-        return;
-    }
+    grid.innerHTML = '<p class="text-muted">Loading logs...</p>';
     
-    const snap = await db.ref('students').once('value');
-    list.innerHTML = '';
-    const data = snap.val();
-    let foundStudents = false;
-    
-    if (data) {
-        for (let id in data) {
-            if (data[id].level === currentUser.level) {
-                foundStudents = true;
-                const student = data[id];
-                const logs = student.attendanceLogs || {};
-                const isPresent = !!logs[selectedDate];
-                const dayMarked = isPresent ? logs[selectedDate].day : '-';
-                const statusHtml = isPresent ? '<span style="color: #28a745; font-weight: bold;"><i class="fas fa-check-circle"></i> Present</span>' : '<span style="color: #dc3545; font-weight: bold;"><i class="fas fa-times-circle"></i> Absent</span>';
-                
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td><strong>${student.studentNumber || 'N/A'}</strong></td>
-                    <td>${student.name}</td>
-                    <td>${dayMarked}</td>
-                    <td>${statusHtml}</td>
-                `;
-                list.appendChild(tr);
-            }
+    try {
+        const snap = await db.ref('attendance_snapshots').orderByChild('level').equalTo(currentUser.level).once('value');
+        const snapshots = snap.val();
+        grid.innerHTML = '';
+        
+        if (!snapshots) {
+            grid.innerHTML = '<p class="text-muted">No saved registers found.</p>';
+            return;
         }
-    }
-    
-    if (!foundStudents) {
-        list.innerHTML = `<tr><td colspan="4" class="text-center text-muted">No students found in Level ${currentUser.level}.</td></tr>`;
+
+        // Sort by date/timestamp descending
+        const sorted = Object.entries(snapshots).sort((a, b) => new Date(b[1].timestamp) - new Date(a[1].timestamp));
+
+        sorted.forEach(([id, s]) => {
+            const card = document.createElement('div');
+            card.className = 'course-category-card glass-card';
+            card.style.padding = '1.5rem';
+            card.style.cursor = 'pointer';
+            card.onclick = () => viewSnapshotDetails(id, s);
+            
+            card.innerHTML = `
+                <div style="font-size: 0.8rem; color: #666; margin-bottom: 5px;">${s.day}</div>
+                <h3 style="margin-bottom: 10px; color: var(--primary-blue);"><i class="fas fa-calendar-check"></i> ${new Date(s.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</h3>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 0.85rem; background: #eee; padding: 3px 10px; border-radius: 12px;">${s.records.length} Students</span>
+                    <span style="font-size: 0.8rem; color: var(--accent-gold);">View List <i class="fas fa-chevron-right"></i></span>
+                </div>
+            `;
+            grid.appendChild(card);
+        });
+    } catch (e) {
+        console.error(e);
+        grid.innerHTML = '<p class="text-danger">Failed to load logs.</p>';
     }
 };
 
-window.loadClassrepData = () => {
+window.viewSnapshotDetails = (id, s) => {
+    document.getElementById('history-list-view').style.display = 'none';
+    const detailView = document.getElementById('history-detail-view');
+    detailView.style.display = 'block';
+
+    document.getElementById('snapshot-title').textContent = `${s.day}, ${new Date(s.date).toLocaleDateString()}`;
+    document.getElementById('snapshot-meta').textContent = `Saved at ${new Date(s.timestamp).toLocaleTimeString()} • ${s.records.length} Students`;
+
+    const list = document.getElementById('classrep-history-detail-list');
+    list.innerHTML = '';
+
+    s.records.forEach(rec => {
+        let statusHtml = '<span class="status-pill" style="color:#888;">Not Marked</span>';
+        if (rec.status === 'Present') statusHtml = '<span class="status-pill present"><i class="fas fa-check-circle"></i> Present</span>';
+        else if (rec.status === 'Absent') statusHtml = '<span class="status-pill absent"><i class="fas fa-times-circle"></i> Absent</span>';
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td><strong>${rec.studentNumber || 'N/A'}</strong></td>
+            <td>${rec.name}</td>
+            <td>${statusHtml}</td>
+        `;
+        list.appendChild(tr);
+    });
+};
+
+window.deleteAttendanceSnapshot = async (id) => {
+    if (confirm("DANGER: Are you sure you want to PERMANENTLY delete this attendance register? This cannot be undone.")) {
+        await db.ref('attendance_snapshots/' + id).remove();
+        alert("Session register deleted.");
+    }
+};
+
+window.viewAdminSnapshot = async (id) => {
+    const snap = await db.ref('attendance_snapshots/' + id).once('value');
+    const s = snap.val();
+    if (!s) return;
+    
+    document.getElementById('adm-snap-title').textContent = `${s.day}, ${new Date(s.date).toLocaleDateString()}`;
+    document.getElementById('adm-snap-meta').textContent = `Level ${s.level} • Saved at ${new Date(s.timestamp).toLocaleTimeString()}`;
+
+    const list = document.getElementById('adm-snap-list');
+    list.innerHTML = '';
+
+    s.records.forEach(r => {
+        let statusHtml = '<span class="status-pill" style="color:#888;">Not Marked</span>';
+        if (r.status === 'Present') statusHtml = '<span class="status-pill present"><i class="fas fa-check-circle"></i> Present</span>';
+        else if (r.status === 'Absent') statusHtml = '<span class="status-pill absent"><i class="fas fa-times-circle"></i> Absent</span>';
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td><strong>${r.studentNumber || 'N/A'}</strong></td>
+            <td>${r.name}</td>
+            <td>${statusHtml}</td>
+        `;
+        list.appendChild(tr);
+    });
+
+    openModal('admin-attendance-detail-modal');
+};
+
+window.loadClassrepData = async () => {
     if (!currentUser || currentUser.type !== 'classrep') return;
     document.getElementById('classrep-portal-name').textContent = `Level ${currentUser.level} Rep`;
+    
+    // Set Date Display
+    const dateEl = document.getElementById('cr-date-display');
+    if (dateEl) {
+        const today = new Date();
+        dateEl.textContent = today.toLocaleDateString('en-GB', { 
+            weekday: 'long', 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric' 
+        });
+    }
+
     const today = new Date().toISOString().split('T')[0];
     
+    loadAttendanceHistory();
+    loadAttendanceDrafts();
+
     db.ref('students').on('value', snap => {
         const list = document.getElementById('classrep-students-list');
         if (!list) return;
@@ -906,17 +1620,28 @@ window.loadClassrepData = () => {
             if (data[id].level === currentUser.level) {
                 found = true;
                 const logs = data[id].attendanceLogs || {};
-                const isPresentToday = !!logs[today];
-                const btnHtml = isPresentToday ? 
-                    `<button class="small-btn" style="background:#28a745; color:white; border:none; padding:5px 10px; border-radius:4px;" disabled><i class="fas fa-check"></i> Marked</button>` :
-                    `<button class="small-btn primary-btn" onclick="markPresent('${id}')">Mark Present</button>`;
-                    
+                const statusToday = logs[today]?.status;
+                
                 const tr = document.createElement('tr');
+                
+                // Create buttons with active states
+                let presentBtnClass = statusToday === 'Present' ? 'attendance-btn present active' : 'attendance-btn present';
+                let absentBtnClass = statusToday === 'Absent' ? 'attendance-btn absent active' : 'attendance-btn absent';
+
                 tr.innerHTML = `
                     <td><strong>${data[id].studentNumber || 'N/A'}</strong></td>
                     <td>${data[id].name}</td>
                     <td>Level ${data[id].level}</td>
-                    <td>${btnHtml}</td>
+                    <td>
+                        <div class="attendance-actions">
+                            <button class="${presentBtnClass}" onclick="markAttendance('${id}', 'Present')">
+                                <i class="fas fa-check"></i> Present
+                            </button>
+                            <button class="${absentBtnClass}" onclick="markAttendance('${id}', 'Absent')">
+                                <i class="fas fa-times"></i> Absent
+                            </button>
+                        </div>
+                    </td>
                 `;
                 list.appendChild(tr);
             }

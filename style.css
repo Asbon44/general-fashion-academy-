@@ -1420,3 +1420,90 @@ small {
         text-align: left;
     }
 }
+
+/* Attendance Buttons Styling */
+.attendance-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.attendance-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 8px 15px;
+    border: 2px solid transparent;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: #f0f0f0;
+    color: #555;
+    font-size: 0.9rem;
+}
+
+.attendance-btn.present {
+    border-color: #28a745;
+}
+
+.attendance-btn.present:hover {
+    background: #e8f5e9;
+    color: #28a745;
+}
+
+.attendance-btn.present.active {
+    background: #28a745;
+    color: white;
+}
+
+.attendance-btn.absent {
+    border-color: #dc3545;
+}
+
+.attendance-btn.absent:hover {
+    background: #fdecea;
+    color: #dc3545;
+}
+
+.attendance-btn.absent.active {
+    background: #dc3545;
+    color: white;
+}
+
+.attendance-btn i {
+    font-size: 0.8rem;
+}
+
+/* History Styles */
+.status-pill {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.status-pill.present {
+    background: #e8f5e9;
+    color: #28a745;
+}
+
+.status-pill.absent {
+    background: #fdecea;
+    color: #dc3545;
+}
+
+/* Disabled Button Styles */
+.attendance-btn.disabled,
+.attendance-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed !important;
+    pointer-events: none;
+}
+
+.attendance-btn.active.disabled {
+    opacity: 1;
+    background: #6c757d !important;
+    border-color: #6c757d !important;
+}
