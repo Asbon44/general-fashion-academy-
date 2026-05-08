@@ -435,7 +435,16 @@
             <div class="portal-content">
                 <!-- Dashboard Tab -->
                 <div id="admin-dashboard-tab" class="admin-tab-content active">
-                    <h2>Overview</h2>
+                    <div class="student-welcome-banner glass-card" style="background: linear-gradient(135deg, #0A2540 0%, #112d4e 100%);">
+                        <div class="welcome-text">
+                            <h2>Academy Overview</h2>
+                            <p>Real-time data and administrative insights for GFA.</p>
+                        </div>
+                        <div class="welcome-status-badge">
+                            <i class="fas fa-user-shield"></i> Administrator
+                        </div>
+                    </div>
+                    
                     <div class="stats-grid mb-5">
                         <div class="stat-card glass-card">
                             <div class="stat-icon"><i class="fas fa-user-graduate"></i></div>
@@ -1020,10 +1029,19 @@
             <div class="portal-content">
                 <!-- Dashboard Tab -->
                 <div id="classrep-dashboard-tab" class="classrep-tab-content active">
-                    <div class="flex-between mb-4">
-                        <div>
+                    <div class="student-welcome-banner glass-card" style="background: linear-gradient(135deg, #1A3C5E 0%, #0A2540 100%);">
+                        <div class="welcome-text">
                             <h2>Class Register</h2>
-                            <p class="text-muted">Mark attendance for students in your class. <span id="register-status-badge" class="status-pill warning" style="background:#3498db; color:white; display:none;">Draft Active</span></p>
+                            <p>Mark attendance and manage your level's records.</p>
+                        </div>
+                        <div class="welcome-status-badge">
+                            <i class="fas fa-users-cog"></i> Class Representative
+                        </div>
+                    </div>
+
+                    <div class="flex-between mb-4 mt-4">
+                        <div>
+                            <p class="text-muted">Currently marking students for Level <span id="cr-level-badge">X</span>. <span id="register-status-badge" class="status-pill warning" style="background:#3498db; color:white; display:none;">Draft Active</span></p>
                         </div>
                         <div style="display: flex; gap: 10px; align-items: center;">
                             <button id="btn-save-progress" class="primary-btn small-btn" onclick="saveProgress()"
