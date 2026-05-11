@@ -15,6 +15,11 @@
 </head>
 
 <body>
+    <div class="glow-background">
+        <div class="glow-circle"></div>
+        <div class="glow-circle"></div>
+        <div class="glow-circle"></div>
+    </div>
     <!-- Navbar -->
     <nav class="navbar">
         <div class="nav-container">
@@ -435,7 +440,7 @@
             <div class="portal-content">
                 <!-- Dashboard Tab -->
                 <div id="admin-dashboard-tab" class="admin-tab-content active">
-                    <div class="student-welcome-banner glass-card" style="background: linear-gradient(135deg, #0A2540 0%, #112d4e 100%);">
+                    <div class="student-welcome-banner glass-card" style="background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-light) 100%);">
                         <div class="welcome-text">
                             <h2>Academy Overview</h2>
                             <p>Real-time data and administrative insights for GFA.</p>
@@ -527,7 +532,11 @@
                         </div>
                     </div>
 
-                    <div class="flex-between mb-3">
+                    <div class="flex-between mb-4">
+                        <div class="search-box" style="padding: 0; width: 350px; display: flex; align-items: center; border-radius: 8px; overflow: hidden; background: #fff; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                            <i class="fas fa-search" style="padding: 0 1rem; color: var(--primary-blue);"></i>
+                            <input type="text" id="admin-student-search" placeholder="Search name or ID..." onkeyup="filterStudents(currentLevelFilter)" style="background: transparent; border: none; color: var(--text-dark); padding: 0.8rem 1rem 0.8rem 0; width: 100%; outline: none;">
+                        </div>
                         <div id="admin-filter-indicator" style="font-weight:600; color:var(--primary-blue);"></div>
                         <button id="btn-clear-filter" class="small-btn" style="display:none; background:none; color:#dc3545; border:1px solid #dc3545; border-radius:20px;" onclick="filterStudents('all')">Show All Students</button>
                     </div>
@@ -740,7 +749,7 @@
             <div class="portal-content">
                 <!-- Dashboard Tab -->
                 <div id="student-dashboard-tab" class="student-tab-content active">
-                    <div class="student-welcome-banner glass-card">
+                    <div class="student-welcome-banner glass-card" style="background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-light) 100%);">
                         <div class="welcome-text">
                             <h2>Welcome back, <span id="st-welcome-name">Student</span>!</h2>
                             <p>Here's what's happening with your academic journey today.</p>
@@ -1357,6 +1366,88 @@
             </div>
             <div class="mt-4 text-right">
                 <button class="primary-btn small-btn" onclick="closeModal('admin-attendance-detail-modal')">Close Window</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Student Detail Modal (Admin View) -->
+    <div id="student-detail-modal" class="modal">
+        <div class="modal-content glass-card" style="max-width: 800px; width: 95%;">
+            <span class="close-modal" onclick="closeModal('student-detail-modal')">&times;</span>
+            <div class="student-detail-header">
+                <div class="flex-between">
+                    <div>
+                        <h2 id="det-st-name">Student Name</h2>
+                        <p id="det-st-id" style="color: var(--accent-gold); font-weight: 700;">5140101000</p>
+                    </div>
+                    <img id="det-st-pic" src="" alt="Profile" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid var(--white);">
+                </div>
+            </div>
+            
+            <div class="detail-tabs mt-4">
+                <div class="dashboard-grid" style="grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="glass-card" style="padding: 1.5rem;">
+                        <h3>Personal Info</h3>
+                        <div class="profile-details-grid" style="grid-template-columns: 1fr;">
+                            <div class="detail-item">
+                                <label>Email</label>
+                                <span id="det-st-email">...</span>
+                            </div>
+                            <div class="detail-item">
+                                <label>Gender</label>
+                                <span id="det-st-gender">...</span>
+                            </div>
+                            <div class="detail-item">
+                                <label>Level</label>
+                                <span id="det-st-level">...</span>
+                            </div>
+                            <div class="detail-item">
+                                <label>Boarding Status</label>
+                                <span id="det-st-boarding">...</span>
+                            </div>
+                            <div class="detail-item">
+                                <label>Hostel & Room</label>
+                                <span id="det-st-room" style="color: var(--accent-gold); font-weight: 700;">Not Booked</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="glass-card" style="padding: 1.5rem;">
+                        <h3>Academic Info</h3>
+                        <div class="profile-details-grid" style="grid-template-columns: 1fr;">
+                            <div class="detail-item">
+                                <label>Course</label>
+                                <span id="det-st-course">...</span>
+                            </div>
+                            <div class="detail-item">
+                                <label>Registration Date</label>
+                                <span id="det-st-reg-date">...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="payment-history-section mt-5">
+                <h3>Payment History</h3>
+                <div class="table-responsive glass-card" style="padding: 0; margin-top: 1rem;">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Type</th>
+                                <th>Amount (GHC)</th>
+                                <th>Method</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody id="det-st-payments-list">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="mt-4 text-right">
+                <button class="primary-btn small-btn" onclick="closeModal('student-detail-modal')">Close Profile</button>
             </div>
         </div>
     </div>

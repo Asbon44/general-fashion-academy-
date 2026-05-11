@@ -195,8 +195,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 let base64 = "";
                 if (passportFile) base64 = await fileToBase64(passportFile);
 
-                // Use a transaction to ensure unique sequential student numbers across all devices
-                const counterRef = db.ref('student_counter');
+                // Sequential student numbers starting from 5140101000 incremented by 2
+                const counterRef = db.ref('student_counter_v2');
                 const result = await counterRef.transaction((currentCount) => {
                     return (currentCount || 0) + 1;
                 });
@@ -206,7 +206,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 const newCount = result.snapshot.val();
-                const studentNumber = `GFA${String(newCount).padStart(5, '0')}`;
+                const studentNumber = (5140101000 + (newCount - 1) * 2).toString();
 
                 const studentData = {
                     name: `${firstName} ${surname}${otherName ? ' ' + otherName : ''}`,
@@ -241,11 +241,29 @@ document.addEventListener('DOMContentLoaded', () => {
             const course = document.getElementById('add-st-course').value;
             const boarding = document.getElementById('add-st-boarding').checked;
 
-            const newRef = db.ref('students').push();
-            await newRef.set({ name, email, password: pwd, course, boarding, registeredAt: new Date().toISOString() });
-            closeModal('add-student-modal');
-            e.target.reset();
-            alert('Student added successfully');
+            try {
+                // Sequential student numbers
+                const counterRef = db.ref('student_counter_v2');
+                const result = await counterRef.transaction((currentCount) => {
+                    return (currentCount || 0) + 1;
+                });
+                
+                const newCount = result.snapshot.val();
+                const studentNumber = (5140101000 + (newCount - 1) * 2).toString();
+
+                const newRef = db.ref('students').push();
+                await newRef.set({ 
+                    name, email, password: pwd, course, boarding, 
+                    studentNumber,
+                    registeredAt: new Date().toISOString() 
+                });
+                
+                closeModal('add-student-modal');
+                e.target.reset();
+                alert(`Student added. ID: ${studentNumber}`);
+            } catch (err) {
+                alert('Failed to add student');
+            }
         });
     }
 
@@ -490,24 +508,44 @@ window.loadAdminData = () => {
         
         let total = 0, boarding = 0, day = 0, level100 = 0, level200 = 0;
         const data = snap.val();
+        
+        // Get search query
+        const searchInput = document.getElementById('admin-student-search');
+        const query = searchInput ? searchInput.value.toLowerCase() : "";
+
         for (let id in data) {
+            const student = data[id];
             total++;
-            if (data[id].boarding) boarding++;
+            if (student.boarding) boarding++;
             else day++;
             
-            if (data[id].level === '100') level100++;
-            else if (data[id].level === '200') level200++;
+            if (student.level === '100') level100++;
+            else if (student.level === '200') level200++;
 
-            // Apply Filter
-            if (currentLevelFilter !== 'all' && data[id].level !== currentLevelFilter) continue;
+            // Apply Level Filter
+            if (currentLevelFilter !== 'all' && student.level !== currentLevelFilter) continue;
+
+            // Apply Search Filter
+            const nameMatch = student.name.toLowerCase().includes(query);
+            const idMatch = (student.studentNumber || "").toLowerCase().includes(query);
+            if (query && !nameMatch && !idMatch) continue;
 
             const tr = document.createElement('tr');
-            const courseDisplay = data[id].courseStatus === 'Assigned' ? data[id].course : '<span style="color:#dc3545; font-weight:600;">Not Assigned</span>';
-            tr.innerHTML = `<td><strong>${data[id].studentNumber || 'N/A'}</strong></td><td>${data[id].name}</td><td>${courseDisplay}</td><td>Level ${data[id].level || 'N/A'}</td><td>${data[id].boarding?'Boarder':'Day Student'}</td><td><button class="small-btn primary-btn" style="padding:5px 10px; margin-right:5px; border-radius:4px; cursor:pointer;" onclick="promoteStudent('${id}', '${data[id].level || '100'}')">Update Level</button><button class="small-btn" style="background:#dc3545; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;" onclick="deleteStudent('${id}')">Delete</button></td>`;
+            const courseDisplay = student.courseStatus === 'Assigned' ? student.course : '<span style="color:#f1c40f; font-weight:600;">Not Assigned</span>';
+            tr.innerHTML = `
+                <td><strong>${student.studentNumber || 'N/A'}</strong></td>
+                <td>${student.name}</td>
+                <td>${courseDisplay}</td>
+                <td>Level ${student.level || 'N/A'}</td>
+                <td>${student.boarding?'Boarder':'Day Student'}</td>
+                <td>
+                    <button class="small-btn primary-btn" style="padding:5px 10px; margin-right:5px; border-radius:4px; cursor:pointer;" onclick="viewStudentDetails('${id}')">View Info</button>
+                    <button class="small-btn" style="background:#dc3545; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;" onclick="deleteStudent('${id}')">Delete</button>
+                </td>`;
             list.appendChild(tr);
             if (select) {
                 const opt = document.createElement('option');
-                opt.value = id; opt.textContent = data[id].name;
+                opt.value = id; opt.textContent = student.name;
                 select.appendChild(opt);
             }
         }
@@ -524,11 +562,14 @@ window.loadAdminData = () => {
         const indicator = document.getElementById('admin-filter-indicator');
         const clearBtn = document.getElementById('btn-clear-filter');
         if (indicator && clearBtn) {
-            if (currentLevelFilter === 'all') {
+            const queryText = query ? ` and matching "${query}"` : "";
+            if (currentLevelFilter === 'all' && !query) {
                 indicator.textContent = '';
                 clearBtn.style.display = 'none';
             } else {
-                indicator.textContent = `Currently showing Level ${currentLevelFilter} only`;
+                indicator.textContent = currentLevelFilter === 'all' 
+                    ? `Showing students matching "${query}"` 
+                    : `Showing Level ${currentLevelFilter}${queryText}`;
                 clearBtn.style.display = 'block';
             }
         }
@@ -793,6 +834,69 @@ window.viewAttachmentDetails = async (id) => {
         alert(`Attachment Details:\n\nStudent: ${att.studentName}\nShop: ${att.shopName}\nTown: ${att.town}\nRegion: ${att.region}\nDistrict: ${att.district}\nAddress: ${att.shopAddress}\nOwner Phone: ${att.ownerPhone}`);
     }
 }
+
+window.viewStudentDetails = async (id) => {
+    try {
+        const snap = await db.ref('students/' + id).once('value');
+        const st = snap.val();
+        if (!st) return;
+
+        // Populate basic info
+        document.getElementById('det-st-name').textContent = st.name;
+        document.getElementById('det-st-id').textContent = st.studentNumber || 'N/A';
+        document.getElementById('det-st-email').textContent = st.email;
+        document.getElementById('det-st-gender').textContent = st.gender || 'Not specified';
+        document.getElementById('det-st-level').textContent = `Level ${st.level || 'N/A'}`;
+        document.getElementById('det-st-boarding').textContent = st.boarding ? 'Boarder' : 'Day Student';
+        document.getElementById('det-st-course').textContent = st.course || 'Not Assigned';
+        document.getElementById('det-st-reg-date').textContent = st.registeredAt ? new Date(st.registeredAt).toLocaleDateString() : 'N/A';
+        
+        const pic = document.getElementById('det-st-pic');
+        if (st.passportPic) {
+            pic.src = st.passportPic;
+            pic.style.display = 'block';
+        } else {
+            pic.style.display = 'none';
+        }
+
+        // Fetch Hostel Room Info
+        const hostelSnap = await db.ref('hostel_bookings').orderByChild('studentId').equalTo(id).once('value');
+        const bookings = hostelSnap.val();
+        const roomBox = document.getElementById('det-st-room');
+        if (bookings) {
+            const b = Object.values(bookings)[0];
+            roomBox.textContent = `${b.hostel} - Room ${b.room}`;
+        } else {
+            roomBox.textContent = 'Not Booked';
+        }
+
+        // Fetch payments for this specific student
+        const paySnap = await db.ref('payments').orderByChild('studentId').equalTo(id).once('value');
+        const payments = paySnap.val();
+        const list = document.getElementById('det-st-payments-list');
+        list.innerHTML = '';
+
+        if (payments) {
+            Object.values(payments).sort((a, b) => new Date(b.date) - new Date(a.date)).forEach(p => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${p.type || 'Fees'}</td>
+                    <td style="font-weight:700; color:var(--accent-gold);">GHC ${parseFloat(p.amount).toFixed(2)}</td>
+                    <td>${p.method}</td>
+                    <td>${p.date}</td>
+                `;
+                list.appendChild(tr);
+            });
+        } else {
+            list.innerHTML = '<tr><td colspan="4" class="text-center text-muted">No payment records found.</td></tr>';
+        }
+
+        openModal('student-detail-modal');
+    } catch (err) {
+        console.error(err);
+        alert('Error loading student details');
+    }
+};
 
 window.deleteAttachment = async (id) => {
     if(confirm('Delete this attachment record?')) {
