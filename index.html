@@ -12,6 +12,9 @@
         rel="stylesheet">
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- External Libraries for Export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 
 <body>
@@ -434,13 +437,16 @@
                     <li data-admin-tab="complaints"><i class="fas fa-envelope-open-text"></i> Student Complaints</li>
                     <li data-admin-tab="classrep-reports"><i class="fas fa-clipboard-check"></i> Class Rep Info</li>
                     <li data-admin-tab="attachments"><i class="fas fa-file-alt"></i> Shop Attachments</li>
-                    <li onclick="logout()" style="margin-top: 2rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1rem;"><i class="fas fa-sign-out-alt"></i> Logout</li>
+                    <li onclick="logout()"
+                        style="margin-top: 2rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1rem;"><i
+                            class="fas fa-sign-out-alt"></i> Logout</li>
                 </ul>
             </div>
             <div class="portal-content">
                 <!-- Dashboard Tab -->
                 <div id="admin-dashboard-tab" class="admin-tab-content active">
-                    <div class="student-welcome-banner glass-card" style="background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-light) 100%);">
+                    <div class="student-welcome-banner glass-card"
+                        style="background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-light) 100%);">
                         <div class="welcome-text">
                             <h2>Academy Overview</h2>
                             <p>Real-time data and administrative insights for GFA.</p>
@@ -449,7 +455,7 @@
                             <i class="fas fa-user-shield"></i> Administrator
                         </div>
                     </div>
-                    
+
                     <div class="stats-grid mb-5">
                         <div class="stat-card glass-card">
                             <div class="stat-icon"><i class="fas fa-user-graduate"></i></div>
@@ -483,7 +489,8 @@
                             <div class="p-3">
                                 <p class="text-muted">Currently managing student accommodations.</p>
                                 <div style="margin-top: 15px;">
-                                    <button class="primary-btn small-btn" data-admin-tab="hostel-admin" onclick="switchAdminTab('hostel-admin')">View Hostel List</button>
+                                    <button class="primary-btn small-btn" data-admin-tab="hostel-admin"
+                                        onclick="switchAdminTab('hostel-admin')">View Hostel List</button>
                                 </div>
                             </div>
                         </div>
@@ -495,7 +502,8 @@
                             <div class="p-3">
                                 <p class="text-muted">Track payments and academy revenue.</p>
                                 <div style="margin-top: 15px;">
-                                    <button class="primary-btn small-btn" onclick="switchAdminTab('payments')">Manage Payments</button>
+                                    <button class="primary-btn small-btn" onclick="switchAdminTab('payments')">Manage
+                                        Payments</button>
                                 </div>
                             </div>
                         </div>
@@ -514,7 +522,8 @@
 
                     <!-- Level Stats Boxes -->
                     <div class="stats-grid mb-4">
-                        <div class="stat-card glass-card" onclick="filterStudents('100')" style="border-left: 4px solid var(--accent-gold); cursor:pointer;">
+                        <div class="stat-card glass-card" onclick="filterStudents('100')"
+                            style="border-left: 4px solid var(--accent-gold); cursor:pointer;">
                             <div class="stat-icon"><i class="fas fa-layer-group"></i></div>
                             <div class="stat-details">
                                 <h4 id="stat-level-100">0</h4>
@@ -522,7 +531,8 @@
                                 <small>Click to Filter</small>
                             </div>
                         </div>
-                        <div class="stat-card glass-card" onclick="filterStudents('200')" style="border-left: 4px solid var(--primary-blue); cursor:pointer;">
+                        <div class="stat-card glass-card" onclick="filterStudents('200')"
+                            style="border-left: 4px solid var(--primary-blue); cursor:pointer;">
                             <div class="stat-icon"><i class="fas fa-medal"></i></div>
                             <div class="stat-details">
                                 <h4 id="stat-level-200">0</h4>
@@ -533,12 +543,17 @@
                     </div>
 
                     <div class="flex-between mb-4">
-                        <div class="search-box" style="padding: 0; width: 350px; display: flex; align-items: center; border-radius: 8px; overflow: hidden; background: #fff; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                        <div class="search-box"
+                            style="padding: 0; width: 350px; display: flex; align-items: center; border-radius: 8px; overflow: hidden; background: #fff; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
                             <i class="fas fa-search" style="padding: 0 1rem; color: var(--primary-blue);"></i>
-                            <input type="text" id="admin-student-search" placeholder="Search name or ID..." onkeyup="filterStudents(currentLevelFilter)" style="background: transparent; border: none; color: var(--text-dark); padding: 0.8rem 1rem 0.8rem 0; width: 100%; outline: none;">
+                            <input type="text" id="admin-student-search" placeholder="Search name or ID..."
+                                onkeyup="filterStudents(currentLevelFilter)"
+                                style="background: transparent; border: none; color: var(--text-dark); padding: 0.8rem 1rem 0.8rem 0; width: 100%; outline: none;">
                         </div>
                         <div id="admin-filter-indicator" style="font-weight:600; color:var(--primary-blue);"></div>
-                        <button id="btn-clear-filter" class="small-btn" style="display:none; background:none; color:#dc3545; border:1px solid #dc3545; border-radius:20px;" onclick="filterStudents('all')">Show All Students</button>
+                        <button id="btn-clear-filter" class="small-btn"
+                            style="display:none; background:none; color:#dc3545; border:1px solid #dc3545; border-radius:20px;"
+                            onclick="filterStudents('all')">Show All Students</button>
                     </div>
                     <div class="table-responsive glass-card">
                         <table class="data-table">
@@ -564,7 +579,9 @@
                     <div class="flex-between mb-4">
                         <h2>Hostel Management</h2>
                         <div class="stats-summary">
-                            <span class="badge" style="background:#28a745; color:white; padding:5px 15px; border-radius:20px;">Total Bookings: <span id="admin-hostel-total">0</span></span>
+                            <span class="badge"
+                                style="background:#28a745; color:white; padding:5px 15px; border-radius:20px;">Total
+                                Bookings: <span id="admin-hostel-total">0</span></span>
                         </div>
                     </div>
 
@@ -576,7 +593,7 @@
                     <div id="admin-hostel-occupancy-grid" class="courses-curriculum-grid mb-5">
                         <!-- Populated dynamically: Hostel -> Room -> Student Names -->
                     </div>
-                    
+
                     <div class="section-header-mini mb-3">
                         <h3>Detailed Booking List</h3>
                     </div>
@@ -676,7 +693,7 @@
                     <div class="flex-between mb-4">
                         <h2>Class Rep Communications</h2>
                     </div>
-                    
+
                     <div class="section-header-mini mb-3">
                         <h3>Messages & Reports</h3>
                         <p class="text-muted">General reports and requests from Class Reps.</p>
@@ -749,7 +766,8 @@
             <div class="portal-content">
                 <!-- Dashboard Tab -->
                 <div id="student-dashboard-tab" class="student-tab-content active">
-                    <div class="student-welcome-banner glass-card" style="background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-light) 100%);">
+                    <div class="student-welcome-banner glass-card"
+                        style="background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-light) 100%);">
                         <div class="welcome-text">
                             <h2>Welcome back, <span id="st-welcome-name">Student</span>!</h2>
                             <p>Here's what's happening with your academic journey today.</p>
@@ -833,6 +851,22 @@
                                 </div>
                             </div>
                         </div>
+
+                        <!-- History Card -->
+                        <div class="dashboard-card glass-card history-card">
+                            <div class="card-header">
+                                <i class="fas fa-history" style="color: var(--accent-gold);"></i>
+                                <h3>My History & Academic Notes</h3>
+                            </div>
+                            <div id="st-history-list" style="padding: 1rem; max-height: 300px; overflow-y: auto;">
+                                <!-- Populated from Firebase -->
+                                <div class="text-center py-4">
+                                    <i class="fas fa-spinner fa-spin"
+                                        style="color: var(--primary-blue); font-size: 1.5rem;"></i>
+                                    <p class="text-muted mt-2">Loading your history...</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -842,22 +876,26 @@
                         <h2>Course Registration</h2>
                         <div id="course-reg-status-badge"></div>
                     </div>
-                    
+
                     <div id="course-registration-container" class="glass-card" style="padding: 2rem;">
                         <div id="course-reg-info">
                             <h3 id="reg-level-title">Level Registration</h3>
-                            <p class="text-muted mb-4">Please confirm your registration for this level's core curriculum.</p>
+                            <p class="text-muted mb-4">Please confirm your registration for this level's core
+                                curriculum.</p>
                         </div>
-                        
+
                         <div id="courses-to-register-list" class="courses-curriculum-grid mb-4">
                             <!-- Populated dynamically based on level -->
                         </div>
 
-                        <button id="btn-register-courses" class="cta-button primary-btn" style="width: 100%; display:none;" onclick="registerStudentCourses()">
-                            <i class="fas fa-file-signature"></i> Register for Level <span id="reg-level-num"></span> Courses
+                        <button id="btn-register-courses" class="cta-button primary-btn"
+                            style="width: 100%; display:none;" onclick="registerStudentCourses()">
+                            <i class="fas fa-file-signature"></i> Register for Level <span id="reg-level-num"></span>
+                            Courses
                         </button>
-                        
-                        <div id="already-registered-msg" class="alert-box" style="display:none; padding: 1.5rem; border-left-color: #28a745; background: #e8f5e9;">
+
+                        <div id="already-registered-msg" class="alert-box"
+                            style="display:none; padding: 1.5rem; border-left-color: #28a745; background: #e8f5e9;">
                             <h4 style="color: #28a745;"><i class="fas fa-check-circle"></i> Registration Complete</h4>
                             <p id="registered-courses-summary" style="margin-top: 10px;"></p>
                         </div>
@@ -870,12 +908,13 @@
                         <h2>Hostel Accommodation</h2>
                         <div id="hostel-status-badge"></div>
                     </div>
-                    
+
                     <div id="hostel-booking-container" class="glass-card" style="padding: 2rem;">
                         <div id="hostel-info-box">
                             <h3>Apply for Accommodation</h3>
-                            <p class="text-muted mb-4">Select your preferred hostel and room. Note that space is subject to availability.</p>
-                            
+                            <p class="text-muted mb-4">Select your preferred hostel and room. Note that space is subject
+                                to availability.</p>
+
                             <div class="hostel-selection-form">
                                 <div class="form-group mb-3">
                                     <label>Select Hostel</label>
@@ -891,18 +930,24 @@
                                         <option value="">-- Choose Room --</option>
                                     </select>
                                 </div>
-                                <button id="btn-book-hostel" class="cta-button primary-btn" style="width: 100%;" onclick="bookHostelRoom()">
+                                <button id="btn-book-hostel" class="cta-button primary-btn" style="width: 100%;"
+                                    onclick="bookHostelRoom()">
                                     <i class="fas fa-bed"></i> Book Accommodation
                                 </button>
                             </div>
                         </div>
 
                         <div id="hostel-success-box" style="display:none; text-align: center; padding: 2rem;">
-                            <div id="hostel-status-icon" style="font-size: 3rem; color: #f39c12; mb-3;"><i class="fas fa-clock"></i></div>
+                            <div id="hostel-status-icon" style="font-size: 3rem; color: #f39c12; mb-3;"><i
+                                    class="fas fa-clock"></i></div>
                             <h3 id="hostel-status-title" style="color: #f39c12;">Request Pending</h3>
-                            <p class="text-muted mt-2" id="hostel-status-msg">Your request is being reviewed by the administration.</p>
-                            <h4 id="assigned-hostel-details" style="font-size: 1.5rem; margin-top: 1rem;">Hostel Name - Room X</h4>
-                            <button id="btn-cancel-own-booking" class="small-btn" style="margin-top:20px; background:#dc3545; color:white; border:none; padding:5px 15px; border-radius:20px; cursor:pointer;" onclick="cancelMyHostelRequest()">Cancel Request</button>
+                            <p class="text-muted mt-2" id="hostel-status-msg">Your request is being reviewed by the
+                                administration.</p>
+                            <h4 id="assigned-hostel-details" style="font-size: 1.5rem; margin-top: 1rem;">Hostel Name -
+                                Room X</h4>
+                            <button id="btn-cancel-own-booking" class="small-btn"
+                                style="margin-top:20px; background:#dc3545; color:white; border:none; padding:5px 15px; border-radius:20px; cursor:pointer;"
+                                onclick="cancelMyHostelRequest()">Cancel Request</button>
                         </div>
                     </div>
                 </div>
@@ -1027,8 +1072,10 @@
                     <i class="fas fa-users"></i>
                     <span id="classrep-portal-name">Level X Rep</span>
                 </div>
-                <div id="classrep-current-date" style="text-align: center; font-size: 0.9rem; color: #fff; margin-bottom: 20px; font-weight: 600; opacity: 0.9;">
-                    <i class="fas fa-calendar-day" style="margin-right: 5px;"></i> <span id="cr-date-display">--/--/----</span>
+                <div id="classrep-current-date"
+                    style="text-align: center; font-size: 0.9rem; color: #fff; margin-bottom: 20px; font-weight: 600; opacity: 0.9;">
+                    <i class="fas fa-calendar-day" style="margin-right: 5px;"></i> <span
+                        id="cr-date-display">--/--/----</span>
                 </div>
                 <ul class="portal-nav">
                     <li class="active" data-classrep-tab="dashboard"><i class="fas fa-clipboard-list"></i> Register</li>
@@ -1042,7 +1089,8 @@
             <div class="portal-content">
                 <!-- Dashboard Tab -->
                 <div id="classrep-dashboard-tab" class="classrep-tab-content active">
-                    <div class="student-welcome-banner glass-card" style="background: linear-gradient(135deg, #1A3C5E 0%, #0A2540 100%);">
+                    <div class="student-welcome-banner glass-card"
+                        style="background: linear-gradient(135deg, #1A3C5E 0%, #0A2540 100%);">
                         <div class="welcome-text">
                             <h2>Class Register</h2>
                             <p>Mark attendance and manage your level's records.</p>
@@ -1054,7 +1102,10 @@
 
                     <div class="flex-between mb-4 mt-4">
                         <div>
-                            <p class="text-muted">Currently marking students for Level <span id="cr-level-badge">X</span>. <span id="register-status-badge" class="status-pill warning" style="background:#3498db; color:white; display:none;">Draft Active</span></p>
+                            <p class="text-muted">Currently marking students for Level <span
+                                    id="cr-level-badge">X</span>. <span id="register-status-badge"
+                                    class="status-pill warning"
+                                    style="background:#3498db; color:white; display:none;">Draft Active</span></p>
                         </div>
                         <div style="display: flex; gap: 10px; align-items: center;">
                             <button id="btn-save-progress" class="primary-btn small-btn" onclick="saveProgress()"
@@ -1089,8 +1140,9 @@
                 <!-- Drafts Tab -->
                 <div id="classrep-drafts-tab" class="classrep-tab-content">
                     <h2>Drafts & In-Progress Registers</h2>
-                    <p class="text-muted mb-4">You can resume these registers to finish marking and submit them completely.</p>
-                    
+                    <p class="text-muted mb-4">You can resume these registers to finish marking and submit them
+                        completely.</p>
+
                     <div id="classrep-drafts-list" class="courses-curriculum-grid">
                         <!-- Populated with draft sessions -->
                         <p class="text-muted">No active drafts found.</p>
@@ -1115,7 +1167,9 @@
                                 <h2 id="snapshot-title">Session Details</h2>
                                 <p id="snapshot-meta" class="text-muted"></p>
                             </div>
-                            <button class="small-btn" onclick="showHistoryList()" style="background:#6c757d; color:white; border:none; padding:8px 15px; border-radius:30px; cursor:pointer;"><i class="fas fa-arrow-left"></i> Back to Logs</button>
+                            <button class="small-btn" onclick="showHistoryList()"
+                                style="background:#6c757d; color:white; border:none; padding:8px 15px; border-radius:30px; cursor:pointer;"><i
+                                    class="fas fa-arrow-left"></i> Back to Logs</button>
                         </div>
 
                         <div class="table-responsive glass-card">
@@ -1365,7 +1419,8 @@
                 </table>
             </div>
             <div class="mt-4 text-right">
-                <button class="primary-btn small-btn" onclick="closeModal('admin-attendance-detail-modal')">Close Window</button>
+                <button class="primary-btn small-btn" onclick="closeModal('admin-attendance-detail-modal')">Close
+                    Window</button>
             </div>
         </div>
     </div>
@@ -1380,10 +1435,11 @@
                         <h2 id="det-st-name">Student Name</h2>
                         <p id="det-st-id" style="color: var(--accent-gold); font-weight: 700;">5140101000</p>
                     </div>
-                    <img id="det-st-pic" src="" alt="Profile" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid var(--white);">
+                    <img id="det-st-pic" src="" alt="Profile"
+                        style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid var(--white);">
                 </div>
             </div>
-            
+
             <div class="detail-tabs mt-4">
                 <div class="dashboard-grid" style="grid-template-columns: 1fr 1fr; gap: 1rem;">
                     <div class="glass-card" style="padding: 1.5rem;">
@@ -1407,7 +1463,8 @@
                             </div>
                             <div class="detail-item">
                                 <label>Hostel & Room</label>
-                                <span id="det-st-room" style="color: var(--accent-gold); font-weight: 700;">Not Booked</span>
+                                <span id="det-st-room" style="color: var(--accent-gold); font-weight: 700;">Not
+                                    Booked</span>
                             </div>
                         </div>
                     </div>
@@ -1446,9 +1503,201 @@
                 </div>
             </div>
 
-            <div class="mt-4 text-right">
-                <button class="primary-btn small-btn" onclick="closeModal('student-detail-modal')">Close Profile</button>
+            <div class="student-history-section mt-5">
+                <h3>Student History & Internal Notes</h3>
+                <div class="glass-card mt-3" style="padding: 1.5rem; background: rgba(255,255,255,0.5);">
+                    <div id="det-st-history-list" class="mb-4"
+                        style="max-height: 300px; overflow-y: auto; border-bottom: 1px solid #eee;">
+                        <!-- Populated dynamically -->
+                        <p class="text-muted">No history recorded yet.</p>
+                    </div>
+                    <div class="form-group mt-3">
+                        <label style="font-weight: 600; color: var(--primary-blue);">Add New History/Academic
+                            Note</label>
+                        <textarea id="add-history-text" rows="3"
+                            style="width:100%; border-radius:12px; padding:12px; border:1px solid #cbd5e0; font-family: inherit; margin-top: 8px; background: white;"
+                            placeholder="Type student history or notes here..."></textarea>
+                    </div>
+                    <div class="text-right mt-2">
+                        <button class="primary-btn small-btn" onclick="saveStudentHistory()"
+                            style="background: var(--primary-blue); color: white;"><i class="fas fa-plus"></i> Add to
+                            History</button>
+                    </div>
+                </div>
             </div>
+
+            <div class="mt-4 text-right" style="display: flex; justify-content: flex-end; gap: 10px;">
+                <button class="primary-btn small-btn" onclick="downloadStudentData()"
+                    style="background: var(--accent-gold); color: var(--primary-blue);">
+                    <i class="fas fa-download"></i> Download Full Report
+                </button>
+                <button class="primary-btn small-btn" onclick="closeModal('student-detail-modal')">Close
+                    Profile</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Premium Student Report Modal -->
+    <div id="student-report-modal" class="modal">
+        <div class="modal-content"
+            style="max-width: 850px; padding: 0; background: #fff; border-radius: 0; overflow-y: auto; max-height: 90vh; box-shadow: 0 0 50px rgba(0,0,0,0.3);">
+            <div id="printable-report"
+                style="padding: 50px; background: #fff; position: relative; min-height: 1000px; font-family: 'Inter', sans-serif;">
+                <!-- Decorative Watermark -->
+                <div
+                    style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-45deg); font-size: 8rem; color: rgba(10, 37, 64, 0.03); font-weight: 900; pointer-events: none; white-space: nowrap; text-transform: uppercase;">
+                    General Fashion Academy</div>
+
+                <!-- Report Header -->
+                <div
+                    style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 4px solid var(--primary-blue); padding-bottom: 20px; margin-bottom: 30px;">
+                    <div style="display: flex; gap: 20px; align-items: center;">
+                        <img src="logo.PNG" alt="GFA Logo" style="width: 100px; height: 100px; object-fit: contain;">
+                        <div>
+                            <h1
+                                style="font-family: 'Playfair Display', serif; color: var(--primary-blue); margin: 0; font-size: 2.2rem; letter-spacing: 1px;">
+                                General Fashion Academy</h1>
+                            <p
+                                style="color: var(--accent-gold); font-weight: 700; margin: 5px 0 0; letter-spacing: 2px; text-transform: uppercase;">
+                                Official Academic Transcript & Profile</p>
+                        </div>
+                    </div>
+                    <div style="text-align: right;">
+                        <p style="margin: 0; font-weight: 600; color: #64748b;">Report ID: <span
+                                id="rep-id-display">--</span></p>
+                        <p style="margin: 5px 0 0; font-size: 0.9rem; color: #94a3b8;">Issue Date: <span
+                                id="rep-date-display">--</span></p>
+                    </div>
+                </div>
+
+                <!-- Profile Section -->
+                <div style="display: grid; grid-template-columns: 180px 1fr; gap: 40px; margin-bottom: 40px;">
+                    <div
+                        style="width: 180px; height: 180px; border: 5px solid #f1f5f9; border-radius: 12px; overflow: hidden; background: #f8fafc;">
+                        <img id="rep-pic" src="" alt="Student" style="width: 100%; height: 100%; object-fit: cover;">
+                    </div>
+                    <div>
+                        <h2 id="rep-name" style="font-size: 2.4rem; margin: 0 0 5px; color: var(--primary-blue); font-weight: 800;">Student Full Name</h2>
+                        <p style="margin: 0 0 20px; font-size: 1.2rem; color: var(--accent-gold); font-weight: 700; letter-spacing: 1px;">ID: <span id="rep-sid">GFA-XXXXXX</span></p>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                            <div style="border-bottom: 2px solid #f1f5f9; padding: 10px 0;"><small style="color: #64748b; text-transform: uppercase; font-size: 0.75rem; font-weight: 800; letter-spacing: 1px;">Current Level</small><p id="rep-level" style="margin: 5px 0; font-weight: 700; color: #1e293b; font-size: 1.1rem;"></p></div>
+                            <div style="border-bottom: 2px solid #f1f5f9; padding: 10px 0;"><small style="color: #64748b; text-transform: uppercase; font-size: 0.75rem; font-weight: 800; letter-spacing: 1px;">Gender</small><p id="rep-gender" style="margin: 5px 0; font-weight: 700; color: #1e293b; font-size: 1.1rem;"></p></div>
+                            <div style="border-bottom: 2px solid #f1f5f9; padding: 10px 0;"><small style="color: #64748b; text-transform: uppercase; font-size: 0.75rem; font-weight: 800; letter-spacing: 1px;">Boarding Status</small><p id="rep-boarding" style="margin: 5px 0; font-weight: 700; color: #1e293b; font-size: 1.1rem;"></p></div>
+                            <div style="border-bottom: 2px solid #f1f5f9; padding: 10px 0; grid-column: span 2;"><small style="color: #64748b; text-transform: uppercase; font-size: 0.75rem; font-weight: 800; letter-spacing: 1px;">Email Address</small><p id="rep-email" style="margin: 5px 0; font-weight: 700; color: #1e293b; font-size: 1.1rem;"></p></div>
+                        </div>
+                    </div>
+                </div>
+
+
+
+                <!-- Financial Statement -->
+                <div style="margin-bottom: 40px;">
+                    <div
+                        style="background: var(--primary-blue); color: #fff; padding: 10px 20px; border-radius: 6px; margin-bottom: 15px; font-weight: 700; display: flex; align-items: center; gap: 10px;">
+                        <i class="fas fa-file-invoice-dollar"></i> FINANCIAL STATEMENT
+                    </div>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: #f8fafc; text-align: left;">
+                                <th style="padding: 12px; border-bottom: 2px solid #edf2f7;">Date</th>
+                                <th style="padding: 12px; border-bottom: 2px solid #edf2f7;">Description</th>
+                                <th style="padding: 12px; border-bottom: 2px solid #edf2f7;">Method</th>
+                                <th style="padding: 12px; border-bottom: 2px solid #edf2f7; text-align: right;">Amount
+                                    (GHC)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="rep-payments-list">
+                            <!-- Payments -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Hostel & Room Section -->
+                <div style="margin-bottom: 40px;">
+                    <div style="background: #10b981; color: #fff; padding: 10px 20px; border-radius: 6px; margin-bottom: 15px; font-weight: 700; display: flex; align-items: center; gap: 10px;">
+                        <i class="fas fa-hotel"></i> HOSTEL & ROOM
+                    </div>
+                    <div style="padding: 20px; border: 1px solid #edf2f7; border-radius: 8px; background: #f0fdf4; display: flex; justify-content: space-between;">
+                        <div>
+                            <small style="color: #15803d; text-transform: uppercase; font-size: 0.7rem; font-weight: 800;">Hostel Name</small>
+                            <p id="rep-hostel" style="margin: 5px 0 0; color: #166534; font-weight: 800; font-size: 1.2rem;"></p>
+                        </div>
+                        <div style="text-align: right;">
+                            <small style="color: #15803d; text-transform: uppercase; font-size: 0.7rem; font-weight: 800;">Room Number</small>
+                            <p id="rep-room" style="margin: 5px 0 0; color: #166534; font-weight: 800; font-size: 1.2rem;"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Registered Courses -->
+                <div style="margin-bottom: 40px;">
+                    <div style="background: #6366f1; color: #fff; padding: 10px 20px; border-radius: 6px; margin-bottom: 15px; font-weight: 700; display: flex; align-items: center; gap: 10px;">
+                        <i class="fas fa-graduation-cap"></i> REGISTERED CURRICULUM
+                    </div>
+                    <div id="rep-courses-list" style="display: flex; flex-wrap: wrap; gap: 10px; padding: 5px;">
+                        <!-- Courses -->
+                    </div>
+                </div>
+
+                <!-- Academic History -->
+                <div style="margin-bottom: 40px;">
+                    <div
+                        style="background: var(--accent-gold); color: var(--primary-blue); padding: 10px 20px; border-radius: 6px; margin-bottom: 15px; font-weight: 700; display: flex; align-items: center; gap: 10px;">
+                        <i class="fas fa-history"></i> ACADEMIC HISTORY & OFFICIAL NOTES
+                    </div>
+                    <div id="rep-history-list" style="border: 1px solid #edf2f7; border-radius: 8px;">
+                        <!-- History -->
+                    </div>
+                </div>
+
+                <!-- Footer / Signatures -->
+                <div style="margin-top: 80px; display: flex; justify-content: space-between; align-items: flex-end;">
+                    <div style="text-align: center;">
+                        <div style="width: 200px; border-bottom: 1px solid #1e293b; margin-bottom: 10px;"></div>
+                        <p style="margin: 0; font-weight: 700; font-size: 0.9rem;">Registrar's Signature</p>
+                    </div>
+                    <div style="text-align: right;">
+                        <p style="margin: 0; font-size: 0.8rem; color: #94a3b8;">This is an official document generated
+                            by GFA Management System.</p>
+                        <p style="margin: 5px 0 0; font-size: 0.8rem; color: #94a3b8; font-style: italic;">Validity can
+                            be verified at the GFA Administration Office.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div style="background: #f8fafc; padding: 20px; border-top: 1px solid #edf2f7; text-align: right; display: flex; justify-content: flex-end; gap: 10px;">
+                <button class="primary-btn small-btn" onclick="downloadAsImage()" style="background: #10b981; color: #fff;">
+                    <i class="fas fa-image"></i> Download as Image
+                </button>
+                <button class="primary-btn small-btn" onclick="printReport()" style="background: var(--primary-blue); color: #fff;">
+                    <i class="fas fa-print"></i> Print / Save as PDF
+                </button>
+                <button class="primary-btn small-btn" onclick="closeModal('student-report-modal')" style="background: #e2e8f0; color: #475569;">
+                    Close Preview
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- History Detail Modal (Student View) -->
+    <div id="history-detail-modal" class="modal">
+        <div class="modal-content glass-card" style="max-width: 500px;">
+            <span class="close-modal" onclick="closeModal('history-detail-modal')">&times;</span>
+            <div style="text-align: center; margin-bottom: 20px;">
+                <div
+                    style="width: 60px; height: 60px; background: rgba(212, 175, 55, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px;">
+                    <i class="fas fa-history" style="color: var(--accent-gold); font-size: 1.5rem;"></i>
+                </div>
+                <h2 style="font-size: 1.5rem;">Academic Note</h2>
+                <p id="hist-modal-date" class="text-muted" style="font-size: 0.9rem;"></p>
+            </div>
+            <div id="hist-modal-text"
+                style="background: #f8fafc; padding: 20px; border-radius: 12px; line-height: 1.7; color: var(--text-dark); white-space: pre-wrap; margin-bottom: 20px; border: 1px solid #edf2f7;">
+                <!-- Text goes here -->
+            </div>
+            <button class="primary-btn" style="width: 100%;" onclick="closeModal('history-detail-modal')">Close
+                Note</button>
         </div>
     </div>
 

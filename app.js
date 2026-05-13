@@ -11,8 +11,8 @@ const db = firebase.database();
 
 // State
 let currentUser = null;
-let activeDraftId = null; 
-
+let activeDraftId = null;
+let currentViewedStudentId = null; // Added for student details view
 // Initialization
 document.addEventListener('DOMContentLoaded', () => {
     // 1. Initialize Nav & Sections
@@ -22,10 +22,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const mobileMenuBtn = document.querySelector('.mobile-menu');
 
     // 2. Navigation Logic
-    window.navigateTo = function(sectionId) {
+    window.navigateTo = function (sectionId) {
         // Hide all sections
         sections.forEach(sec => sec.classList.remove('active'));
-        
+
         // Show target section
         const targetSec = document.getElementById(sectionId);
         if (targetSec) {
@@ -52,7 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (sectionId === 'admin-section') loadAdminData();
         if (sectionId === 'student-section') loadStudentData();
         if (sectionId === 'classrep-section') loadClassrepData();
-        
+
         // Close Mobile Menu
         if (navLinks) navLinks.classList.remove('active');
     };
@@ -78,11 +78,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.target.classList.contains('tab-btn')) {
             const container = e.target.closest('.login-container');
             const targetId = e.target.getAttribute('data-tab');
-            
+
             // Switch tabs
             container.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             e.target.classList.add('active');
-            
+
             // Switch forms
             container.querySelectorAll('.login-form').forEach(form => form.classList.remove('active'));
             const targetForm = document.getElementById(targetId);
@@ -94,11 +94,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if (portalNavItem) {
             const type = portalNavItem.hasAttribute('data-admin-tab') ? 'admin' : (portalNavItem.hasAttribute('data-student-tab') ? 'student' : 'classrep');
             const tabName = portalNavItem.getAttribute(`data-${type}-tab`);
-            
+
             // UI Toggle
             portalNavItem.parentElement.querySelectorAll('li').forEach(li => li.classList.remove('active'));
             portalNavItem.classList.add('active');
-            
+
             document.querySelectorAll(`.${type}-tab-content`).forEach(content => content.classList.remove('active'));
             const targetTab = document.getElementById(`${type}-${tabName}-tab`);
             if (targetTab) targetTab.classList.add('active');
@@ -142,7 +142,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const studentId = document.getElementById('student-id-login').value.trim().toUpperCase();
             const pwd = document.getElementById('student-password').value;
             const errorMsg = document.getElementById('student-login-error');
-            
+
             try {
                 const snapshot = await db.ref('students').once('value');
                 const allStudents = snapshot.val();
@@ -247,17 +247,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 const result = await counterRef.transaction((currentCount) => {
                     return (currentCount || 0) + 1;
                 });
-                
+
                 const newCount = result.snapshot.val();
                 const studentNumber = (5140101000 + (newCount - 1) * 2).toString();
 
                 const newRef = db.ref('students').push();
-                await newRef.set({ 
-                    name, email, password: pwd, course, boarding, 
+                await newRef.set({
+                    name, email, password: pwd, course, boarding,
                     studentNumber,
-                    registeredAt: new Date().toISOString() 
+                    registeredAt: new Date().toISOString()
                 });
-                
+
                 closeModal('add-student-modal');
                 e.target.reset();
                 alert(`Student added. ID: ${studentNumber}`);
@@ -281,7 +281,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Save to Firebase
             const newRef = db.ref('payments').push();
             await newRef.set({ studentId, amount, method, date, type, createdAt: new Date().toISOString() });
-            
+
             // Get student name for receipt
             const stName = document.querySelector(`#pay-st-id option[value="${studentId}"]`).textContent;
 
@@ -401,7 +401,7 @@ document.addEventListener('DOMContentLoaded', () => {
         classrepAdminForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             if (!currentUser || currentUser.type !== 'classrep') return;
-            
+
             const subject = document.getElementById('cr-admin-subject').value;
             const message = document.getElementById('cr-admin-message').value;
 
@@ -430,7 +430,7 @@ document.addEventListener('DOMContentLoaded', () => {
 function startPortalSlideshow() {
     const studentBg = document.querySelector('.portal-bg-student');
     const adminBg = document.querySelector('.portal-bg-admin');
-    
+
     const images = [
         "gallery_1/IMG-20260429-WA0019.jpg",
         "gallery_1/IMG-20260429-WA0025.jpg",
@@ -443,14 +443,14 @@ function startPortalSlideshow() {
     setInterval(() => {
         currentIndex = (currentIndex + 1) % images.length;
         const img = images[currentIndex];
-        
+
         if (studentBg) {
             studentBg.style.background = `linear-gradient(rgba(10, 37, 64, 0.8), rgba(10, 37, 64, 0.8)), url('${img}') center top/cover no-repeat`;
         }
         if (adminBg) {
             adminBg.style.background = `linear-gradient(rgba(10, 37, 64, 0.8), rgba(10, 37, 64, 0.8)), url('${img}') center top/cover no-repeat`;
         }
-    }, 5000);
+    }, 7000);
 }
 
 function startHeroSlideshow() {
@@ -471,14 +471,14 @@ function startHeroSlideshow() {
         currentIndex = (currentIndex + 1) % images.length;
     };
 
-    setInterval(changeBg, 4000);
+    setInterval(changeBg, 7000);
 }
 
 // Helper Functions
 function loadGallery() {
     const galleryContainer = document.getElementById('gallery-container');
     if (!galleryContainer) return;
-    
+
     galleryContainer.innerHTML = '';
     // Load images from 19 to 51
     for (let i = 19; i <= 51; i++) {
@@ -505,10 +505,10 @@ window.loadAdminData = () => {
         if (!list) return;
         list.innerHTML = '';
         if (select) select.innerHTML = '<option value="">Select Student...</option>';
-        
+
         let total = 0, boarding = 0, day = 0, level100 = 0, level200 = 0;
         const data = snap.val();
-        
+
         // Get search query
         const searchInput = document.getElementById('admin-student-search');
         const query = searchInput ? searchInput.value.toLowerCase() : "";
@@ -518,7 +518,7 @@ window.loadAdminData = () => {
             total++;
             if (student.boarding) boarding++;
             else day++;
-            
+
             if (student.level === '100') level100++;
             else if (student.level === '200') level200++;
 
@@ -537,7 +537,7 @@ window.loadAdminData = () => {
                 <td>${student.name}</td>
                 <td>${courseDisplay}</td>
                 <td>Level ${student.level || 'N/A'}</td>
-                <td>${student.boarding?'Boarder':'Day Student'}</td>
+                <td>${student.boarding ? 'Boarder' : 'Day Student'}</td>
                 <td>
                     <button class="small-btn primary-btn" style="padding:5px 10px; margin-right:5px; border-radius:4px; cursor:pointer;" onclick="viewStudentDetails('${id}')">View Info</button>
                     <button class="small-btn" style="background:#dc3545; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;" onclick="deleteStudent('${id}')">Delete</button>
@@ -552,7 +552,7 @@ window.loadAdminData = () => {
         document.getElementById('stat-total-students').textContent = total;
         document.getElementById('stat-boarding').textContent = boarding;
         document.getElementById('stat-day').textContent = day;
-        
+
         const l100Box = document.getElementById('stat-level-100');
         const l200Box = document.getElementById('stat-level-200');
         if (l100Box) l100Box.textContent = level100;
@@ -567,8 +567,8 @@ window.loadAdminData = () => {
                 indicator.textContent = '';
                 clearBtn.style.display = 'none';
             } else {
-                indicator.textContent = currentLevelFilter === 'all' 
-                    ? `Showing students matching "${query}"` 
+                indicator.textContent = currentLevelFilter === 'all'
+                    ? `Showing students matching "${query}"`
                     : `Showing Level ${currentLevelFilter}${queryText}`;
                 clearBtn.style.display = 'block';
             }
@@ -687,19 +687,19 @@ window.loadAdminData = () => {
     db.ref('attendance_snapshots').on('value', snap => {
         const grid = document.getElementById('admin-attendance-snapshots-list');
         if (!grid) return;
-        
+
         const data = snap.val();
         grid.innerHTML = '';
-        
+
         if (data) {
             // Sort by date descending
             const sorted = Object.entries(data).sort((a, b) => new Date(b[1].timestamp) - new Date(a[1].timestamp));
-            
+
             sorted.forEach(([id, s]) => {
                 const card = document.createElement('div');
                 card.className = 'course-category-card glass-card';
                 card.style.padding = '1.5rem';
-                
+
                 card.innerHTML = `
                     <div style="font-size: 0.8rem; color: #666; margin-bottom: 5px;">Level ${s.level} • ${s.day}</div>
                     <h3 style="margin-bottom: 10px; color: var(--primary-blue);"><i class="fas fa-calendar-check"></i> ${new Date(s.date).toLocaleDateString()}</h3>
@@ -743,9 +743,9 @@ window.loadAdminData = () => {
 
                 const tr = document.createElement('tr');
                 const statusPill = b.status === 'Approved' ? '<span class="status-pill present">Approved</span>' : '<span class="status-pill warning" style="background:#f39c12; color:white;">Pending</span>';
-                const actionButtons = b.status === 'Pending' ? 
+                const actionButtons = b.status === 'Pending' ?
                     `<button class="small-btn" style="background:#28a745; color:white; border:none; padding:5px 10px; border-radius:4px; margin-right:5px;" onclick="approveHostelBooking('${id}')"><i class="fas fa-check"></i> Accept</button>` : '';
-                
+
                 tr.innerHTML = `
                     <td>${b.studentName}</td>
                     <td><strong>${b.studentNumber || 'N/A'}</strong></td>
@@ -850,7 +850,7 @@ window.viewStudentDetails = async (id) => {
         document.getElementById('det-st-boarding').textContent = st.boarding ? 'Boarder' : 'Day Student';
         document.getElementById('det-st-course').textContent = st.course || 'Not Assigned';
         document.getElementById('det-st-reg-date').textContent = st.registeredAt ? new Date(st.registeredAt).toLocaleDateString() : 'N/A';
-        
+
         const pic = document.getElementById('det-st-pic');
         if (st.passportPic) {
             pic.src = st.passportPic;
@@ -892,6 +892,10 @@ window.viewStudentDetails = async (id) => {
         }
 
         openModal('student-detail-modal');
+
+        // Load student history
+        currentViewedStudentId = id;
+        loadStudentHistoryUI(id);
     } catch (err) {
         console.error(err);
         alert('Error loading student details');
@@ -899,25 +903,25 @@ window.viewStudentDetails = async (id) => {
 };
 
 window.deleteAttachment = async (id) => {
-    if(confirm('Delete this attachment record?')) {
+    if (confirm('Delete this attachment record?')) {
         await db.ref('attachments/' + id).remove();
     }
 }
 
 window.deleteComplaint = async (id) => {
-    if(confirm('Archive this complaint?')) {
+    if (confirm('Archive this complaint?')) {
         await db.ref('complaints/' + id).remove();
     }
 }
 
 window.deleteClassrepReport = async (id) => {
-    if(confirm('Archive this information?')) {
+    if (confirm('Archive this information?')) {
         await db.ref('classrep_reports/' + id).remove();
     }
 }
 
 window.deleteAnnouncement = async (id) => {
-    if(confirm('Delete this announcement?')) {
+    if (confirm('Delete this announcement?')) {
         await db.ref('announcements/' + id).remove();
     }
 }
@@ -937,7 +941,7 @@ function loadStudentData() {
     document.getElementById('st-profile-attendance').textContent = `${currentUser.attendance || 0} times`;
     document.getElementById('st-profile-course').textContent = currentUser.course || 'Not Assigned';
     document.getElementById('st-profile-boarding').textContent = currentUser.boarding ? 'Boarder' : 'Day Student';
-    
+
     // Load Student's Personal Payments
     db.ref('payments').on('value', snap => {
         const list = document.getElementById('st-payments-list');
@@ -990,6 +994,37 @@ function loadStudentData() {
         }
     });
 
+    // Load Student's Personal History/Notes
+    db.ref(`students/${currentUser.id}/history`).on('value', snap => {
+        const list = document.getElementById('st-history-list');
+        if (!list) return;
+        list.innerHTML = '';
+        const history = snap.val();
+        if (history) {
+            Object.values(history).sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)).forEach(h => {
+                const div = document.createElement('div');
+                div.className = 'student-history-item-clickable';
+                div.style.padding = '12px';
+                div.style.marginBottom = '10px';
+                div.style.background = 'rgba(255,255,255,0.6)';
+                div.style.borderRadius = '8px';
+                div.style.borderLeft = '4px solid var(--accent-gold)';
+                div.style.cursor = 'pointer';
+                div.onclick = () => viewFullHistory(h.text, h.date);
+                div.innerHTML = `
+                    <div class="flex-between">
+                        <p style="font-size:0.95rem; margin-bottom:5px; color: var(--text-dark); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1;">${h.text}</p>
+                        <i class="fas fa-chevron-right" style="color: var(--accent-gold); font-size: 0.8rem; margin-left: 10px;"></i>
+                    </div>
+                    <small style="color:#888; font-size:0.8rem;"><i class="far fa-calendar-alt"></i> ${h.date}</small>
+                `;
+                list.appendChild(div);
+            });
+        } else {
+            list.innerHTML = '<p class="text-muted text-center py-4">No history or notes recorded yet.</p>';
+        }
+    });
+
     // Load Course Registration
     loadCourseRegistration();
 
@@ -1015,9 +1050,9 @@ window.updateRoomOptions = async () => {
     const hostel = document.getElementById('hostel-select').value;
     const roomSelect = document.getElementById('room-select');
     if (!roomSelect) return;
-    
+
     roomSelect.innerHTML = '<option value="">-- Loading Rooms... --</option>';
-    
+
     if (!hostel) {
         roomSelect.innerHTML = '<option value="">-- Choose Hostel First --</option>';
         return;
@@ -1025,27 +1060,27 @@ window.updateRoomOptions = async () => {
 
     const rooms = hostelCapacity[hostel];
     let html = '<option value="">-- Choose Room --</option>';
-    
+
     // Get all current bookings to check occupancy
     const snap = await db.ref('hostel_bookings').once('value');
     const allBookings = snap.val() || {};
-    
+
     for (let roomName in rooms) {
         const capacity = rooms[roomName];
         const occupancy = Object.values(allBookings).filter(b => b.hostel === hostel && b.room === roomName).length;
         const isFull = occupancy >= capacity;
-        
+
         html += `<option value="${roomName}" ${isFull ? 'disabled' : ''}>
             ${roomName} (${occupancy}/${capacity}) ${isFull ? '- FULL' : ''}
         </option>`;
     }
-    
+
     roomSelect.innerHTML = html;
 };
 
 window.bookHostelRoom = async () => {
     if (!currentUser || currentUser.type !== 'student') return;
-    
+
     const hostel = document.getElementById('hostel-select').value;
     const room = document.getElementById('room-select').value;
 
@@ -1105,15 +1140,15 @@ window.approveHostelBooking = async (studentId) => {
 
 window.loadHostelStatus = async () => {
     if (!currentUser || currentUser.type !== 'student') return;
-    
+
     const snap = await db.ref('hostel_bookings').child(currentUser.id).once('value');
     const booking = snap.val();
-    
+
     const infoBox = document.getElementById('hostel-info-box');
     const successBox = document.getElementById('hostel-success-box');
     const details = document.getElementById('assigned-hostel-details');
     const badge = document.getElementById('hostel-status-badge');
-    
+
     const icon = document.getElementById('hostel-status-icon');
     const title = document.getElementById('hostel-status-title');
     const msg = document.getElementById('hostel-status-msg');
@@ -1122,7 +1157,7 @@ window.loadHostelStatus = async () => {
         if (infoBox) infoBox.style.display = 'none';
         if (successBox) successBox.style.display = 'block';
         if (details) details.textContent = `${booking.hostel} - ${booking.room}`;
-        
+
         if (booking.status === 'Approved') {
             if (icon) icon.innerHTML = '<i class="fas fa-check-circle"></i>';
             if (icon) icon.style.color = '#28a745';
@@ -1171,7 +1206,7 @@ window.toggleCourseSelection = (card) => {
 
 window.registerStudentCourses = async () => {
     if (!currentUser || currentUser.type !== 'student') return;
-    
+
     const selectedCards = document.querySelectorAll('.course-category-card.selected');
     if (selectedCards.length === 0) {
         alert("Please tap on the courses to select them before registering.");
@@ -1188,12 +1223,12 @@ window.registerStudentCourses = async () => {
             registrationLevel: level,
             courseStatus: 'Assigned'
         });
-        
+
         currentUser.course = `Level ${level} Curriculum (${selectedCourses.length} courses)`;
         currentUser.registeredCourses = selectedCourses;
         currentUser.registrationLevel = level;
         currentUser.courseStatus = 'Assigned';
-        
+
         alert(`Successfully registered for ${selectedCourses.length} Level ${level} courses!`);
         loadCourseRegistration();
         loadStudentData();
@@ -1204,7 +1239,7 @@ window.registerStudentCourses = async () => {
 
 window.loadCourseRegistration = () => {
     if (!currentUser || currentUser.type !== 'student') return;
-    
+
     const level = currentUser.level || "100";
     const regLevelNum = document.getElementById('reg-level-num');
     const coursesList = document.getElementById('courses-to-register-list');
@@ -1216,7 +1251,7 @@ window.loadCourseRegistration = () => {
     if (!regLevelNum || !coursesList) return;
 
     regLevelNum.textContent = level;
-    
+
     const isRegisteredForCurrentLevel = currentUser.registrationLevel === level && currentUser.courseStatus === 'Assigned';
 
     if (isRegisteredForCurrentLevel) {
@@ -1230,13 +1265,13 @@ window.loadCourseRegistration = () => {
         registerBtn.style.display = 'block';
         alreadyMsg.style.display = 'none';
         if (statusBadge) statusBadge.innerHTML = '<span class="status-pill absent">Status: Not Assigned</span>';
-        
+
         const courses = level === "100" ? [
-            "Garment Construction & Design", "Dress Making (Ladies Wear)", 
-            "Tailoring (Men's Wear)", "Millinery", "Bead Making", 
+            "Garment Construction & Design", "Dress Making (Ladies Wear)",
+            "Tailoring (Men's Wear)", "Millinery", "Bead Making",
             "Occasional Wear", "Modeling"
         ] : [
-            "Wedding Gown", "Suit Making", "Boning", 
+            "Wedding Gown", "Suit Making", "Boning",
             "Batik Making", "Decoration", "Tie and Dye"
         ];
 
@@ -1277,14 +1312,14 @@ function startStudentSlideshow() {
 window.logout = () => { currentUser = null; navigateTo('home-section'); };
 window.openModal = id => document.getElementById(id).classList.add('active');
 window.closeModal = id => document.getElementById(id).classList.remove('active');
-window.deleteStudent = id => confirm('Delete student?') && db.ref('students/'+id).remove();
-window.deletePayment = id => confirm('Are you sure you want to delete this payment record? This will also remove it from the student portal.') && db.ref('payments/'+id).remove();
+window.deleteStudent = id => confirm('Delete student?') && db.ref('students/' + id).remove();
+window.deletePayment = id => confirm('Are you sure you want to delete this payment record? This will also remove it from the student portal.') && db.ref('payments/' + id).remove();
 
 window.promoteStudent = async (id, currentLevel) => {
     let newLevel = prompt("Enter new level for this student (e.g., 100 or 200):", currentLevel);
     if (newLevel && newLevel !== currentLevel) {
         // When promoted, reset course status so they must register for new level courses
-        await db.ref('students/' + id).update({ 
+        await db.ref('students/' + id).update({
             level: newLevel,
             courseStatus: 'Not Assigned',
             course: 'Pending New Level Registration'
@@ -1315,10 +1350,10 @@ window.resetClassAttendance = async () => {
 window.switchStudentTab = (tabId) => {
     document.querySelectorAll('.student-tab-content').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('[data-student-tab]').forEach(t => t.classList.remove('active'));
-    
+
     const targetTab = document.getElementById(`student-${tabId}-tab`);
     const targetLink = document.querySelector(`[data-student-tab="${tabId}"]`);
-    
+
     if (targetTab) targetTab.classList.add('active');
     if (targetLink) targetLink.classList.add('active');
 }
@@ -1326,10 +1361,10 @@ window.switchStudentTab = (tabId) => {
 window.switchAdminTab = (tabId) => {
     document.querySelectorAll('.admin-tab-content').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('[data-admin-tab]').forEach(t => t.classList.remove('active'));
-    
+
     const targetTab = document.getElementById(`admin-${tabId}-tab`);
     const targetLink = document.querySelector(`[data-admin-tab="${tabId}"]`);
-    
+
     if (targetTab) targetTab.classList.add('active');
     if (targetLink) targetLink.classList.add('active');
 }
@@ -1337,13 +1372,234 @@ window.switchAdminTab = (tabId) => {
 function switchClassrepTab(tabId) {
     document.querySelectorAll('.classrep-tab-content').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('[data-classrep-tab]').forEach(t => t.classList.remove('active'));
-    
+
     const targetTab = document.getElementById(`classrep-${tabId}-tab`);
     const targetLink = document.querySelector(`[data-classrep-tab="${tabId}"]`);
-    
+
     if (targetTab) targetTab.classList.add('active');
     if (targetLink) targetLink.classList.add('active');
 }
+
+// Student History Logic
+window.saveStudentHistory = async () => {
+    const textInput = document.getElementById('add-history-text');
+    const text = textInput.value.trim();
+    if (!text || !currentViewedStudentId) return;
+
+    const historyData = {
+        text,
+        date: new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        timestamp: new Date().toISOString()
+    };
+
+    try {
+        await db.ref(`students/${currentViewedStudentId}/history`).push(historyData);
+        textInput.value = '';
+        loadStudentHistoryUI(currentViewedStudentId);
+    } catch (err) {
+        alert('Failed to save history entry.');
+    }
+};
+
+window.deleteStudentHistory = async (historyId) => {
+    if (!currentViewedStudentId) return;
+    if (confirm('Are you sure you want to delete this history entry?')) {
+        try {
+            await db.ref(`students/${currentViewedStudentId}/history/${historyId}`).remove();
+            loadStudentHistoryUI(currentViewedStudentId);
+        } catch (err) {
+            alert('Failed to delete history entry.');
+        }
+    }
+};
+
+async function loadStudentHistoryUI(studentId) {
+    const snap = await db.ref(`students/${studentId}/history`).once('value');
+    const history = snap.val();
+    const list = document.getElementById('det-st-history-list');
+    if (!list) return;
+    list.innerHTML = '';
+
+    if (history) {
+        Object.entries(history).sort((a, b) => new Date(b[1].timestamp) - new Date(a[1].timestamp)).forEach(([id, h]) => {
+            const div = document.createElement('div');
+            div.className = 'flex-between';
+            div.style.padding = '12px 0';
+            div.style.borderBottom = '1px solid #edf2f7';
+            div.innerHTML = `
+                <div style="flex: 1; padding-right: 15px;">
+                    <p style="font-size:0.95rem; margin-bottom:5px; color: #2d3748;">${h.text}</p>
+                    <small style="color:#a0aec0; font-size:0.8rem;">${h.date}</small>
+                </div>
+                <button class="small-btn" style="background:#dc3545; color:white; border:none; padding:5px 8px; border-radius:4px; cursor:pointer;" onclick="deleteStudentHistory('${id}')">
+                    <i class="fas fa-trash"></i>
+                </button>
+            `;
+            list.appendChild(div);
+        });
+    } else {
+        list.innerHTML = '<p class="text-muted text-center py-3">No history recorded yet.</p>';
+    }
+}
+
+window.viewFullHistory = (text, date) => {
+    document.getElementById('hist-modal-date').textContent = date;
+    document.getElementById('hist-modal-text').textContent = text;
+    openModal('history-detail-modal');
+};
+
+window.downloadStudentData = async () => {
+    if (!currentViewedStudentId) return;
+
+    try {
+        const studentSnap = await db.ref(`students/${currentViewedStudentId}`).once('value');
+        const student = studentSnap.val();
+        if (!student) throw new Error('Student data not found');
+
+        // 1. Populate Profile Details
+        document.getElementById('rep-id-display').textContent = 'GFA-' + Math.floor(Math.random() * 1000000);
+        document.getElementById('rep-date-display').textContent = new Date().toLocaleDateString();
+        document.getElementById('rep-name').textContent = student.fullname || student.name || 'N/A';
+        document.getElementById('rep-sid').textContent = student.studentNumber || currentViewedStudentId;
+        document.getElementById('rep-level').textContent = student.currentLevel || `Level ${student.level || '1'}`;
+        document.getElementById('rep-gender').textContent = student.gender || 'N/A';
+        document.getElementById('rep-boarding').textContent = student.boarding ? 'Boarder' : 'Day Student';
+        document.getElementById('rep-email').textContent = student.email || 'N/A';
+        document.getElementById('rep-pic').src = student.passportPic || student.profilePic || 'logo.PNG';
+
+        // 2. Populate Payments
+        const payList = document.getElementById('rep-payments-list');
+        payList.innerHTML = '';
+        if (student.payments) {
+            Object.values(student.payments).forEach(p => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td style="padding: 10px; border-bottom: 1px solid #eee;">${p.date}</td>
+                    <td style="padding: 10px; border-bottom: 1px solid #eee;">${p.type}</td>
+                    <td style="padding: 10px; border-bottom: 1px solid #eee;">${p.method}</td>
+                    <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right; font-weight: 700;">${p.amount}</td>
+                `;
+                payList.appendChild(tr);
+            });
+        } else {
+            payList.innerHTML = '<tr><td colspan="4" style="padding: 20px; text-align: center; color: #94a3b8;">No payment records found.</td></tr>';
+        }
+
+        // 3. Populate History
+        const histList = document.getElementById('rep-history-list');
+        histList.innerHTML = '';
+        if (student.history) {
+            Object.values(student.history).sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)).forEach(h => {
+                const div = document.createElement('div');
+                div.style.padding = '15px';
+                div.style.borderBottom = '1px solid #edf2f7';
+                div.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                        <span style="font-weight: 700; color: var(--primary-blue); font-size: 0.9rem;">ACADEMIC NOTE</span>
+                        <span style="font-size: 0.8rem; color: #94a3b8;">${h.date}</span>
+                    </div>
+                    <p style="margin: 0; font-size: 0.95rem; color: #1e293b; line-height: 1.5;">${h.text}</p>
+                `;
+                histList.appendChild(div);
+            });
+        } else {
+            histList.innerHTML = '<p style="padding: 20px; text-align: center; color: #94a3b8;">No academic history recorded.</p>';
+        }
+
+        // 4. Populate Hostel & Room
+        const hSnap = await db.ref('hostel_bookings').orderByChild('studentId').equalTo(currentViewedStudentId).once('value');
+        const bks = hSnap.val();
+        if (bks) {
+            const b = Object.values(bks)[0];
+            document.getElementById('rep-hostel').textContent = b.hostel;
+            document.getElementById('rep-room').textContent = `Room ${b.room}`;
+        } else {
+            document.getElementById('rep-hostel').textContent = 'Not Assigned';
+            document.getElementById('rep-room').textContent = 'No active booking';
+        }
+
+
+        // 5. Populate Courses
+        const courseList = document.getElementById('rep-courses-list');
+        courseList.innerHTML = '';
+        if (student.registeredCourses) {
+            student.registeredCourses.forEach(c => {
+                const span = document.createElement('span');
+                span.style.background = '#f1f5f9';
+                span.style.padding = '5px 12px';
+                span.style.borderRadius = '20px';
+                span.style.fontSize = '0.85rem';
+                span.style.fontWeight = '600';
+                span.style.color = '#475569';
+                span.style.border = '1px solid #e2e8f0';
+                span.textContent = c;
+                courseList.appendChild(span);
+            });
+        } else {
+            courseList.innerHTML = '<p style="color: #94a3b8; font-style: italic;">No courses registered yet.</p>';
+        }
+
+        // 6. Open Modal
+        openModal('student-report-modal');
+        
+    } catch (err) {
+        console.error(err);
+        alert('Error generating report: ' + err.message);
+    }
+};
+
+window.downloadAsImage = () => {
+    const report = document.getElementById('printable-report');
+    const btn = event.currentTarget;
+    const originalText = btn.innerHTML;
+    
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
+    
+    html2canvas(report, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#ffffff',
+        windowWidth: 900,
+        windowHeight: report.scrollHeight + 200
+    }).then(canvas => {
+        const link = document.createElement('a');
+        link.download = `GFA_Report_${document.getElementById('rep-name').textContent.replace(/\s+/g, '_')}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+        
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+    }).catch(err => {
+        console.error(err);
+        alert('Failed to generate image. Please try the Print option.');
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+    });
+};
+
+window.printReport = () => {
+    const printContent = document.getElementById('printable-report').innerHTML;
+    const originalContent = document.body.innerHTML;
+
+    // Create print window
+    const printWindow = window.open('', '', 'height=1000,width=900');
+    printWindow.document.write('<html><head><title>GFA Student Report</title>');
+    // Include fonts and basic styles
+    printWindow.document.write('<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">');
+    printWindow.document.write('<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">');
+    printWindow.document.write('<style>body{margin:0;padding:0;}.modal-content{box-shadow:none !important;} :root { --primary-blue: #0A2540; --accent-gold: #D4AF37; }</style>');
+    printWindow.document.write('</head><body>');
+    printWindow.document.write(printContent);
+    printWindow.document.write('</body></html>');
+    printWindow.document.close();
+
+    // Wait for assets to load then print
+    printWindow.onload = function () {
+        printWindow.print();
+        printWindow.close();
+    };
+};
 
 function fileToBase64(file) { return new Promise((res, rej) => { const r = new FileReader(); r.readAsDataURL(file); r.onload = () => res(r.result); r.onerror = e => rej(e); }); }
 
@@ -1359,7 +1615,7 @@ window.loginClassrep = () => {
     const level = document.getElementById('classrep-level-input').value;
     const pwd = document.getElementById('classrep-password').value;
     const errorMsg = document.getElementById('classrep-error');
-    
+
     if ((level === '100' && pwd === 'Classrep100') || (level === '200' && pwd === 'Classrep200')) {
         currentUser = { type: 'classrep', level: level };
         closeModal('classrep-modal');
@@ -1372,7 +1628,7 @@ window.loginClassrep = () => {
 
 window.markAttendance = async (studentId, status) => {
     if (!currentUser || currentUser.type !== 'classrep') return;
-    
+
     const today = new Date().toISOString().split('T')[0];
     const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     const day = days[new Date().getDay()];
@@ -1391,11 +1647,11 @@ window.markAttendance = async (studentId, status) => {
             } else if (previousStatus === 'Present' && status === 'Absent') {
                 newAttendance = Math.max(0, newAttendance - 1);
             }
-            
-            logs[today] = { 
-                status: status, 
-                day: day, 
-                timestamp: new Date().toISOString() 
+
+            logs[today] = {
+                status: status,
+                day: day,
+                timestamp: new Date().toISOString()
             };
             await ref.update({ attendance: newAttendance, attendanceLogs: logs });
         }
@@ -1407,7 +1663,7 @@ window.markAttendance = async (studentId, status) => {
 
 window.saveProgress = async () => {
     if (!currentUser || currentUser.type !== 'classrep') return;
-    
+
     const todayISO = new Date().toISOString().split('T')[0];
     const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     const dayName = days[new Date().getDay()];
@@ -1453,14 +1709,14 @@ window.loadAttendanceDrafts = async () => {
     db.ref('attendance_drafts').orderByChild('level').equalTo(currentUser.level).on('value', snap => {
         const drafts = snap.val();
         list.innerHTML = '';
-        
+
         if (drafts) {
-            const sorted = Object.entries(drafts).sort((a,b) => new Date(b[1].timestamp) - new Date(a[1].timestamp));
+            const sorted = Object.entries(drafts).sort((a, b) => new Date(b[1].timestamp) - new Date(a[1].timestamp));
             sorted.forEach(([id, d]) => {
                 const card = document.createElement('div');
                 card.className = 'course-category-card glass-card';
                 card.style.padding = '1.5rem';
-                
+
                 card.innerHTML = `
                     <div style="font-size: 0.8rem; color: #666; margin-bottom: 5px;">${d.day} • Draft</div>
                     <h3 style="margin-bottom: 10px; color: var(--primary-blue);"><i class="fas fa-edit"></i> ${new Date(d.date).toLocaleDateString()}</h3>
@@ -1499,13 +1755,13 @@ window.resumeDraft = async (id) => {
 
         await db.ref().update(updates);
         activeDraftId = id; // Store the ID of the resumed draft
-        
+
         alert("Draft loaded into register! Switch to the 'Register' tab to finish marking.");
-        
+
         // Visual indicator
         const badge = document.getElementById('register-status-badge');
         if (badge) badge.style.display = 'inline-block';
-        
+
         // Navigate back to register
         switchClassrepTab('dashboard');
     }
@@ -1520,7 +1776,7 @@ window.deleteDraft = async (id) => {
 
 window.saveDayAttendance = async () => {
     if (!currentUser || currentUser.type !== 'classrep') return;
-    
+
     const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     const dayName = days[new Date().getDay()];
     const todayISO = new Date().toISOString().split('T')[0];
@@ -1540,7 +1796,7 @@ window.saveDayAttendance = async () => {
                 if (students[id].level === currentUser.level) {
                     const logs = students[id].attendanceLogs || {};
                     const statusToday = logs[todayISO]?.status || 'Not Marked';
-                    
+
                     attendanceRecord.push({
                         studentId: id,
                         name: students[id].name,
@@ -1580,9 +1836,9 @@ window.saveDayAttendance = async () => {
             const badge = document.getElementById('register-status-badge');
             if (badge) badge.style.display = 'none';
         }
-        
+
         alert(`SUCCESS!\nAttendance for ${dayName} has been stored.\nA clean sheet is now ready.`);
-        loadClassrepData(); 
+        loadClassrepData();
     } catch (e) {
         console.error(e);
         alert('Failed to save and clear attendance.');
@@ -1593,14 +1849,14 @@ window.loadAttendanceHistory = async () => {
     if (!currentUser || currentUser.type !== 'classrep') return;
     const grid = document.getElementById('history-sessions-grid');
     if (!grid) return;
-    
+
     grid.innerHTML = '<p class="text-muted">Loading logs...</p>';
-    
+
     try {
         const snap = await db.ref('attendance_snapshots').orderByChild('level').equalTo(currentUser.level).once('value');
         const snapshots = snap.val();
         grid.innerHTML = '';
-        
+
         if (!snapshots) {
             grid.innerHTML = '<p class="text-muted">No saved registers found.</p>';
             return;
@@ -1615,7 +1871,7 @@ window.loadAttendanceHistory = async () => {
             card.style.padding = '1.5rem';
             card.style.cursor = 'pointer';
             card.onclick = () => viewSnapshotDetails(id, s);
-            
+
             card.innerHTML = `
                 <div style="font-size: 0.8rem; color: #666; margin-bottom: 5px;">${s.day}</div>
                 <h3 style="margin-bottom: 10px; color: var(--primary-blue);"><i class="fas fa-calendar-check"></i> ${new Date(s.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</h3>
@@ -1669,7 +1925,7 @@ window.viewAdminSnapshot = async (id) => {
     const snap = await db.ref('attendance_snapshots/' + id).once('value');
     const s = snap.val();
     if (!s) return;
-    
+
     document.getElementById('adm-snap-title').textContent = `${s.day}, ${new Date(s.date).toLocaleDateString()}`;
     document.getElementById('adm-snap-meta').textContent = `Level ${s.level} • Saved at ${new Date(s.timestamp).toLocaleTimeString()}`;
 
@@ -1696,21 +1952,21 @@ window.viewAdminSnapshot = async (id) => {
 window.loadClassrepData = async () => {
     if (!currentUser || currentUser.type !== 'classrep') return;
     document.getElementById('classrep-portal-name').textContent = `Level ${currentUser.level} Rep`;
-    
+
     // Set Date Display
     const dateEl = document.getElementById('cr-date-display');
     if (dateEl) {
         const today = new Date();
-        dateEl.textContent = today.toLocaleDateString('en-GB', { 
-            weekday: 'long', 
-            year: 'numeric', 
-            month: 'long', 
-            day: 'numeric' 
+        dateEl.textContent = today.toLocaleDateString('en-GB', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
         });
     }
 
     const today = new Date().toISOString().split('T')[0];
-    
+
     loadAttendanceHistory();
     loadAttendanceDrafts();
 
@@ -1725,9 +1981,9 @@ window.loadClassrepData = async () => {
                 found = true;
                 const logs = data[id].attendanceLogs || {};
                 const statusToday = logs[today]?.status;
-                
+
                 const tr = document.createElement('tr');
-                
+
                 // Create buttons with active states
                 let presentBtnClass = statusToday === 'Present' ? 'attendance-btn present active' : 'attendance-btn present';
                 let absentBtnClass = statusToday === 'Absent' ? 'attendance-btn absent active' : 'attendance-btn absent';
