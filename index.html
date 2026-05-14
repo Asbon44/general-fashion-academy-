@@ -372,9 +372,13 @@
                                         </select>
                                     </div>
                                     <div class="form-group">
-                                        <label>Email</label>
-                                        <input type="email" id="reg-email" required placeholder="Enter email">
+                                        <label>Phone Number</label>
+                                        <input type="tel" id="reg-phone" required placeholder="e.g. 024XXXXXXX">
                                     </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Email</label>
+                                    <input type="email" id="reg-email" required placeholder="Enter email">
                                 </div>
                                 <div class="form-group">
                                     <label>Password</label>
@@ -590,7 +594,7 @@
                         <h3>Room Occupancy Overview</h3>
                         <p class="text-muted">Click a room to see the students assigned to it.</p>
                     </div>
-                    <div id="admin-hostel-occupancy-grid" class="courses-curriculum-grid mb-5">
+                    <div id="admin-hostel-occupancy-grid" class="hostel-grid mb-5">
                         <!-- Populated dynamically: Hostel -> Room -> Student Names -->
                     </div>
 
@@ -804,6 +808,10 @@
                                 <div class="detail-item">
                                     <label>Level</label>
                                     <span id="st-profile-level">...</span>
+                                </div>
+                                <div class="detail-item">
+                                    <label>Phone Number</label>
+                                    <span id="st-profile-phone">...</span>
                                 </div>
                             </div>
                         </div>
@@ -1268,6 +1276,10 @@
                     <input type="email" id="add-st-email" required>
                 </div>
                 <div class="form-group">
+                    <label>Phone Number</label>
+                    <input type="tel" id="add-st-phone" required>
+                </div>
+                <div class="form-group">
                     <label>Password (Default: 123456)</label>
                     <input type="text" id="add-st-password" value="123456" required>
                 </div>
@@ -1450,6 +1462,10 @@
                                 <span id="det-st-email">...</span>
                             </div>
                             <div class="detail-item">
+                                <label>Phone Number</label>
+                                <span id="det-st-phone">...</span>
+                            </div>
+                            <div class="detail-item">
                                 <label>Gender</label>
                                 <span id="det-st-gender">...</span>
                             </div>
@@ -1584,7 +1600,8 @@
                             <div style="border-bottom: 2px solid #f1f5f9; padding: 10px 0;"><small style="color: #64748b; text-transform: uppercase; font-size: 0.75rem; font-weight: 800; letter-spacing: 1px;">Current Level</small><p id="rep-level" style="margin: 5px 0; font-weight: 700; color: #1e293b; font-size: 1.1rem;"></p></div>
                             <div style="border-bottom: 2px solid #f1f5f9; padding: 10px 0;"><small style="color: #64748b; text-transform: uppercase; font-size: 0.75rem; font-weight: 800; letter-spacing: 1px;">Gender</small><p id="rep-gender" style="margin: 5px 0; font-weight: 700; color: #1e293b; font-size: 1.1rem;"></p></div>
                             <div style="border-bottom: 2px solid #f1f5f9; padding: 10px 0;"><small style="color: #64748b; text-transform: uppercase; font-size: 0.75rem; font-weight: 800; letter-spacing: 1px;">Boarding Status</small><p id="rep-boarding" style="margin: 5px 0; font-weight: 700; color: #1e293b; font-size: 1.1rem;"></p></div>
-                            <div style="border-bottom: 2px solid #f1f5f9; padding: 10px 0; grid-column: span 2;"><small style="color: #64748b; text-transform: uppercase; font-size: 0.75rem; font-weight: 800; letter-spacing: 1px;">Email Address</small><p id="rep-email" style="margin: 5px 0; font-weight: 700; color: #1e293b; font-size: 1.1rem;"></p></div>
+                            <div style="border-bottom: 2px solid #f1f5f9; padding: 10px 0;"><small style="color: #64748b; text-transform: uppercase; font-size: 0.75rem; font-weight: 800; letter-spacing: 1px;">Email Address</small><p id="rep-email" style="margin: 5px 0; font-weight: 700; color: #1e293b; font-size: 1.1rem;"></p></div>
+                            <div style="border-bottom: 2px solid #f1f5f9; padding: 10px 0;"><small style="color: #64748b; text-transform: uppercase; font-size: 0.75rem; font-weight: 800; letter-spacing: 1px;">Phone Number</small><p id="rep-phone" style="margin: 5px 0; font-weight: 700; color: #1e293b; font-size: 1.1rem;"></p></div>
                         </div>
                     </div>
                 </div>

@@ -178,6 +178,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const otherName = document.getElementById('reg-othername').value;
             const gender = document.getElementById('reg-gender').value;
             const level = document.getElementById('reg-level').value;
+            const phone = document.getElementById('reg-phone').value;
             const email = document.getElementById('reg-email').value;
             const password = document.getElementById('reg-password').value;
             const passportFile = document.getElementById('reg-passport').files[0];
@@ -210,7 +211,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 const studentData = {
                     name: `${firstName} ${surname}${otherName ? ' ' + otherName : ''}`,
-                    firstName, surname, otherName, gender, level, email, password,
+                    firstName, surname, otherName, gender, level, email, phone, password,
                     studentNumber,
                     passportPic: base64,
                     boarding: boardingStatus === 'boarder',
@@ -237,6 +238,7 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
             const name = document.getElementById('add-st-name').value;
             const email = document.getElementById('add-st-email').value;
+            const phone = document.getElementById('add-st-phone').value;
             const pwd = document.getElementById('add-st-password').value;
             const course = document.getElementById('add-st-course').value;
             const boarding = document.getElementById('add-st-boarding').checked;
@@ -253,7 +255,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 const newRef = db.ref('students').push();
                 await newRef.set({
-                    name, email, password: pwd, course, boarding,
+                    name, email, phone, password: pwd, course, boarding,
                     studentNumber,
                     registeredAt: new Date().toISOString()
                 });
@@ -765,24 +767,32 @@ window.loadAdminData = () => {
             for (let hostel in roomGroups) {
                 for (let room in roomGroups[hostel]) {
                     const studentNames = roomGroups[hostel][room];
-                    const capacity = hostelCapacity[hostel][room];
+                    const capacity = (hostelCapacity[hostel] && hostelCapacity[hostel][room]) || 10;
                     const card = document.createElement('div');
-                    card.className = 'course-category-card glass-card';
-                    card.style.padding = '15px';
+                    card.className = 'hostel-room-card';
                     card.innerHTML = `
-                        <div class="category-header mb-2">
-                            <i class="fas fa-door-open"></i>
-                            <h4 style="font-size:1rem;">${hostel} - ${room}</h4>
+                        <div class="category-header" style="margin-bottom:0 !important; gap: 10px;">
+                            <i class="fas fa-door-open" style="font-size:1.1rem;"></i>
+                            <h4 style="font-size:0.9rem;">${hostel} - ${room}</h4>
                         </div>
-                        <div class="mb-2">
-                            <span class="status-pill ${studentNames.length >= capacity ? 'absent' : 'present'}">
+                        <div style="margin-top: 5px; display: flex; justify-content: space-between; align-items: center;">
+                            <span class="status-pill ${studentNames.length >= capacity ? 'absent' : 'present'}" style="font-size: 0.7rem; padding: 2px 6px;">
                                 ${studentNames.length}/${capacity} Confirmed
                             </span>
+                            <i class="fas fa-chevron-down" style="font-size: 0.7rem; color: #999;"></i>
                         </div>
-                        <ul style="font-size: 0.85rem; color: #555; padding-left: 15px; margin-top: 10px;">
-                            ${studentNames.map(name => `<li><i class="fas fa-user" style="font-size:0.7rem; color:var(--primary-blue);"></i> ${name}</li>`).join('')}
+                        <ul class="room-occupancy-list">
+                            ${studentNames.map(name => `<li><i class="fas fa-user"></i> ${name}</li>`).join('')}
                         </ul>
                     `;
+                    card.onclick = () => {
+                        const list = card.querySelector('.room-occupancy-list');
+                        const icon = card.querySelector('.fa-chevron-down');
+                        if (list) {
+                            list.classList.toggle('active');
+                            if (icon) icon.style.transform = list.classList.contains('active') ? 'rotate(180deg)' : 'rotate(0deg)';
+                        }
+                    };
                     grid.appendChild(card);
                 }
             }

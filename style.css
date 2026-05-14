@@ -1835,3 +1835,70 @@ small {
     border-color: var(--primary-blue);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
+
+/* Hostel Management Grid Adjustments */
+.hostel-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 1.2rem;
+    margin-top: 1.5rem;
+}
+
+.hostel-room-card {
+    padding: 15px !important;
+    border-radius: 12px;
+    background: var(--white);
+    border: 1px solid var(--glass-border);
+    transition: var(--transition);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.hostel-room-card:hover {
+    border-color: var(--accent-gold);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+    transform: translateY(-3px);
+}
+
+.hostel-room-card h4 {
+    font-size: 0.95rem;
+    margin: 0;
+    color: var(--primary-blue);
+}
+
+.room-occupancy-list {
+    display: none;
+    list-style: none;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px dashed #eee;
+    animation: fadeIn 0.3s ease;
+}
+
+.room-occupancy-list.active {
+    display: block;
+}
+
+.room-occupancy-list li {
+    font-size: 0.85rem;
+    padding: 4px 0;
+    color: #555;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.room-occupancy-list li i {
+    font-size: 0.7rem;
+    color: var(--primary-blue);
+}
+
+.hostel-room-card .fa-chevron-down {
+    transition: transform 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
