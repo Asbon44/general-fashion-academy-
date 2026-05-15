@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>General Fashion Academy</title>
     <meta name="description" content="General Fashion Academy - Premier Dressmaking and Fashion Design in Kumasi">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=2">
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Playfair+Display:wght@600;700&display=swap"
         rel="stylesheet">
@@ -86,7 +86,7 @@
                 <div class="about-content glass-card">
                     <p>General Fashion Academy is a small-scale dressmaking firm that has been in business since 1994.
                         It is one of the 15 companies selected in 2002 by the government of Ghana to launch the
-                        President’s Special Initiative (PSI) on textile and garment to take advantage of AGOA (Africa
+                        Presidentâ€™s Special Initiative (PSI) on textile and garment to take advantage of AGOA (Africa
                         Growth & Opportunity Act) & also one of the most recognized dressmaking firms in the Kumasi
                         Metropolis.</p>
                 </div>
@@ -441,6 +441,7 @@
                     <li data-admin-tab="complaints"><i class="fas fa-envelope-open-text"></i> Student Complaints</li>
                     <li data-admin-tab="classrep-reports"><i class="fas fa-clipboard-check"></i> Class Rep Info</li>
                     <li data-admin-tab="attachments"><i class="fas fa-file-alt"></i> Shop Attachments</li>
+                    <li data-admin-tab="accra-forms"><i class="fas fa-file-invoice"></i> Form</li>
                     <li onclick="logout()"
                         style="margin-top: 2rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1rem;"><i
                             class="fas fa-sign-out-alt"></i> Logout</li>
@@ -737,6 +738,33 @@
                                 <!-- Populated dynamically -->
                                 <tr>
                                     <td colspan="6" class="text-center text-muted">No attachments found.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <!-- Accra Forms Tab -->
+                <div id="admin-accra-forms-tab" class="admin-tab-content">
+                    <div class="flex-between mb-4">
+                        <h2>Admission Forms</h2>
+                        <button class="primary-btn small-btn" onclick="loadAccraForms()"><i class="fas fa-sync"></i> Refresh</button>
+                    </div>
+                    <div class="table-responsive glass-card">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Applicant Name</th>
+                                    <th>Batch</th>
+                                    <th>Branch</th>
+                                    <th>Serial</th>
+                                    <th>Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-accra-forms-list">
+                                <!-- Populated dynamically -->
+                                <tr>
+                                    <td colspan="6" class="text-center text-muted">No submitted forms found.</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -1723,7 +1751,22 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
-    <script src="app.js"></script>
+    <script src="accra-admin.js?v=2"></script>
+    <script src="app.js?v=2"></script>
+    <!-- Accra Form Detail Modal -->
+    <div id="accra-form-detail-modal" class="modal">
+        <div class="modal-content glass-card" style="max-width: 800px; max-height: 90vh; overflow-y: auto;">
+            <span class="close-modal" onclick="closeModal('accra-form-detail-modal')">&times;</span>
+            <div id="accra-form-detail-content">
+                <!-- Content will be populated via JS -->
+            </div>
+            <div style="margin-top: 20px; display: flex; gap: 10px; position: sticky; bottom: 0; background: #fff; padding-top: 10px; border-top: 1px solid #eee;">
+                <button class="primary-btn" style="flex: 1;" onclick="window.printAccraForm()">Print Form</button>
+                <button class="small-btn" style="background: #dc3545; color: white; border: none; padding: 10px; border-radius: 8px;" onclick="window.deleteAccraForm()">Delete Form</button>
+            </div>
+        </div>
+    </div>
 </body>
 
 </html>
+

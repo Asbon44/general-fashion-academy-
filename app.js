@@ -49,7 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         // Trigger Data Loaders
-        if (sectionId === 'admin-section') loadAdminData();
+        if (sectionId === 'admin-section') { loadAdminData(); if(window.initAccraAdmin) window.initAccraAdmin(); }
         if (sectionId === 'student-section') loadStudentData();
         if (sectionId === 'classrep-section') loadClassrepData();
 
@@ -703,7 +703,7 @@ window.loadAdminData = () => {
                 card.style.padding = '1.5rem';
 
                 card.innerHTML = `
-                    <div style="font-size: 0.8rem; color: #666; margin-bottom: 5px;">Level ${s.level} • ${s.day}</div>
+                    <div style="font-size: 0.8rem; color: #666; margin-bottom: 5px;">Level ${s.level} â€¢ ${s.day}</div>
                     <h3 style="margin-bottom: 10px; color: var(--primary-blue);"><i class="fas fa-calendar-check"></i> ${new Date(s.date).toLocaleDateString()}</h3>
                     <div style="font-size: 0.85rem; margin-bottom: 15px;">
                         <span class="status-pill present">${s.records.length} Students marked</span>
@@ -844,6 +844,7 @@ window.viewAttachmentDetails = async (id) => {
         alert(`Attachment Details:\n\nStudent: ${att.studentName}\nShop: ${att.shopName}\nTown: ${att.town}\nRegion: ${att.region}\nDistrict: ${att.district}\nAddress: ${att.shopAddress}\nOwner Phone: ${att.ownerPhone}`);
     }
 }
+
 
 window.viewStudentDetails = async (id) => {
     try {
@@ -1728,7 +1729,7 @@ window.loadAttendanceDrafts = async () => {
                 card.style.padding = '1.5rem';
 
                 card.innerHTML = `
-                    <div style="font-size: 0.8rem; color: #666; margin-bottom: 5px;">${d.day} • Draft</div>
+                    <div style="font-size: 0.8rem; color: #666; margin-bottom: 5px;">${d.day} â€¢ Draft</div>
                     <h3 style="margin-bottom: 10px; color: var(--primary-blue);"><i class="fas fa-edit"></i> ${new Date(d.date).toLocaleDateString()}</h3>
                     <div style="font-size: 0.85rem; margin-bottom: 15px;">
                         <span style="background:var(--primary-blue-light); color:white; padding:3px 10px; border-radius:12px;">${d.records.length} Students marked</span>
@@ -1904,7 +1905,7 @@ window.viewSnapshotDetails = (id, s) => {
     detailView.style.display = 'block';
 
     document.getElementById('snapshot-title').textContent = `${s.day}, ${new Date(s.date).toLocaleDateString()}`;
-    document.getElementById('snapshot-meta').textContent = `Saved at ${new Date(s.timestamp).toLocaleTimeString()} • ${s.records.length} Students`;
+    document.getElementById('snapshot-meta').textContent = `Saved at ${new Date(s.timestamp).toLocaleTimeString()} â€¢ ${s.records.length} Students`;
 
     const list = document.getElementById('classrep-history-detail-list');
     list.innerHTML = '';
@@ -1937,7 +1938,7 @@ window.viewAdminSnapshot = async (id) => {
     if (!s) return;
 
     document.getElementById('adm-snap-title').textContent = `${s.day}, ${new Date(s.date).toLocaleDateString()}`;
-    document.getElementById('adm-snap-meta').textContent = `Level ${s.level} • Saved at ${new Date(s.timestamp).toLocaleTimeString()}`;
+    document.getElementById('adm-snap-meta').textContent = `Level ${s.level} â€¢ Saved at ${new Date(s.timestamp).toLocaleTimeString()}`;
 
     const list = document.getElementById('adm-snap-list');
     list.innerHTML = '';
@@ -2021,3 +2022,4 @@ window.loadClassrepData = async () => {
         }
     });
 };
+
