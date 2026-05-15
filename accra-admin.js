@@ -1,37 +1,61 @@
-// Accra Admission Forms Admin Logic
+// Admission Forms Admin Logic
 
 let currentAccraFormId = null;
+let allAccraForms = [];
 
 window.initAccraAdmin = () => {
     const db = firebase.database();
     db.ref('accra_forms').on('value', snap => {
-        const list = document.getElementById('admin-accra-forms-list');
-        if (!list) return;
-        list.innerHTML = '';
         const data = snap.val();
         if (data) {
-            const entries = Object.entries(data).map(([id, val]) => ({ id, ...val }));
-            entries.sort((a, b) => new Date(b.submittedAt) - new Date(a.submittedAt));
-
-            entries.forEach(form => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td><strong>${form.surname || ''}, ${form.firstname || ''}</strong></td>
-                    <td>${form.admission_batch || 'N/A'}</td>
-                    <td>${form.preferred_branch || 'N/A'}</td>
-                    <td><small>${form.serial || 'N/A'}</small></td>
-                    <td>${new Date(form.submittedAt).toLocaleDateString()}</td>
-                    <td>
-                        <button class="small-btn primary-btn" onclick="viewAccraFormDetails('${form.id}')" style="margin-right:5px;"><i class="fas fa-eye"></i> View</button>
-                        <button class="small-btn" style="background:#dc3545; color:white; border:none; padding:4px 8px; border-radius:4px;" onclick="deleteAccraForm('${form.id}')"><i class="fas fa-trash"></i></button>
-                    </td>
-                `;
-                list.appendChild(tr);
-            });
+            allAccraForms = Object.entries(data).map(([id, val]) => ({ id, ...val }));
+            allAccraForms.sort((a, b) => new Date(b.submittedAt) - new Date(a.submittedAt));
         } else {
-            list.innerHTML = '<tr><td colspan="6" class="text-center text-muted">No submitted forms found.</td></tr>';
+            allAccraForms = [];
         }
+        filterAccraForms(); // Initial render with current search query if any
     });
+};
+
+window.renderAccraForms = (entries) => {
+    const list = document.getElementById('admin-accra-forms-list');
+    if (!list) return;
+    list.innerHTML = '';
+    
+    if (entries.length > 0) {
+        entries.forEach(form => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><strong>${form.surname || ''}, ${form.firstname || ''}</strong></td>
+                <td>${form.admission_batch || 'N/A'}</td>
+                <td>${form.preferred_branch || 'N/A'}</td>
+                <td><small>${form.serial || 'N/A'}</small></td>
+                <td>${new Date(form.submittedAt).toLocaleDateString()}</td>
+                <td>
+                    <button class="small-btn primary-btn" onclick="viewAccraFormDetails('${form.id}')" style="margin-right:5px;"><i class="fas fa-eye"></i> View</button>
+                    <button class="small-btn" style="background:#dc3545; color:white; border:none; padding:4px 8px; border-radius:4px;" onclick="deleteAccraForm('${form.id}')"><i class="fas fa-trash"></i></button>
+                </td>
+            `;
+            list.appendChild(tr);
+        });
+    } else {
+        list.innerHTML = '<tr><td colspan="6" class="text-center text-muted">No submitted forms found.</td></tr>';
+    }
+};
+
+window.filterAccraForms = () => {
+    const searchInput = document.getElementById('admin-accra-search');
+    const query = searchInput ? searchInput.value.toLowerCase() : '';
+    
+    const filtered = allAccraForms.filter(f => 
+        (f.surname || '').toLowerCase().includes(query) || 
+        (f.firstname || '').toLowerCase().includes(query) || 
+        (f.serial || '').toLowerCase().includes(query) || 
+        (f.admission_batch || '').toLowerCase().includes(query) ||
+        (f.preferred_branch || '').toLowerCase().includes(query)
+    );
+    
+    renderAccraForms(filtered);
 };
 
 window.viewAccraFormDetails = async (id) => {
@@ -138,5 +162,5 @@ window.deleteAccraForm = async (id = currentAccraFormId) => {
 };
 
 window.loadAccraForms = () => {
-    alert("Refreshing form submissions...");
+    alert("Refreshing Admission forms...");
 };

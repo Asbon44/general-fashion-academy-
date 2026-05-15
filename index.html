@@ -743,11 +743,17 @@
                         </table>
                     </div>
                 </div>
-                <!-- Accra Forms Tab -->
+                <!-- Admission Forms Tab -->
                 <div id="admin-accra-forms-tab" class="admin-tab-content">
                     <div class="flex-between mb-4">
                         <h2>Admission Forms</h2>
-                        <button class="primary-btn small-btn" onclick="loadAccraForms()"><i class="fas fa-sync"></i> Refresh</button>
+                        <div style="display: flex; gap: 10px;">
+                            <div class="search-box" style="padding: 0; width: 350px; display: flex; align-items: center; border-radius: 8px; overflow: hidden; background: #fff; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                                <i class="fas fa-search" style="padding: 0 1rem; color: var(--primary-blue);"></i>
+                                <input type="text" id="admin-accra-search" placeholder="Search applicant, serial or batch..." onkeyup="filterAccraForms()" style="background: transparent; border: none; color: var(--text-dark); padding: 0.8rem 1rem 0.8rem 0; width: 100%; outline: none;">
+                            </div>
+                            <button class="primary-btn small-btn" onclick="location.reload()"><i class="fas fa-sync"></i> Refresh</button>
+                        </div>
                     </div>
                     <div class="table-responsive glass-card">
                         <table class="data-table">
@@ -1753,7 +1759,7 @@
 
     <script src="accra-admin.js?v=2"></script>
     <script src="app.js?v=2"></script>
-    <!-- Accra Form Detail Modal -->
+    <!-- Admission Form Detail Modal -->
     <div id="accra-form-detail-modal" class="modal">
         <div class="modal-content glass-card" style="max-width: 800px; max-height: 90vh; overflow-y: auto;">
             <span class="close-modal" onclick="closeModal('accra-form-detail-modal')">&times;</span>
