@@ -427,15 +427,206 @@ loginBtn.addEventListener('click', async () => {
         loginError.innerText = "An error occurred. Please refresh and try again.";
         loginError.style.display = 'block';
     } finally {
+                        <div class="label" style="margin-bottom: 5px;">PASSPORT PHOTO</div>
+                        <div class="passport-area">
+                            ${passportDataUrl ? `<img src="${passportDataUrl}" />` : '<span style="color:#a0aec0;font-size:12px;">No Image</span>'}
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <div class="label">Religious Denomination</div>
+                        <div class="value">${getVal('religion')}</div>
+                    </div>
+                    <div class="col">
+                        <div class="label">Residential Status</div>
+                        <div class="value">${getVal('residential')}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-header">SECTION B: CONTACT & BACKGROUND INFORMATION</div>
+            <div class="section-content">
+                <div class="field">
+                    <div class="label">Residential Address (Town, Street, Contact)</div>
+                    <div class="value" style="min-height: 40px;">${getVal('contact_address')}</div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <div class="label">Living Situation</div>
+                        <div class="value">${getVal('living_situation')}</div>
+                    </div>
+                    <div class="col">
+                        <div class="label">How did you hear about GFA?</div>
+                        <div class="value">${getVal('marketing')}</div>
+                    </div>
+                </div>
+                <div class="field">
+                    <div class="label">First time in a fashion center?</div>
+                    <div class="value">${getVal('first_time')} ${dataObj.first_time === 'No' ? ` (Previous: ${getVal('previous_school')})` : ''}</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-header">SECTION C: FAMILY INFORMATION</div>
+            <div class="section-content">
+                <div class="row">
+                    <div class="col">
+                        <div class="field">
+                            <div class="label">Father's Name & Occupation</div>
+                            <div class="value">${getVal('father_name')} — ${getVal('father_job')}</div>
+                        </div>
+                        <div class="field">
+                            <div class="label">Father's Phone Number</div>
+                            <div class="value">${getVal('father_phone')}</div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="field">
+                            <div class="label">Mother's Name & Occupation</div>
+                            <div class="value">${getVal('mother_name')} — ${getVal('mother_job')}</div>
+                        </div>
+                        <div class="field">
+                            <div class="label">Mother's Phone Number</div>
+                            <div class="value">${getVal('mother_phone')}</div>
+                        </div>
+                    </div>
+                </div>
+                <div style="margin-top: 10px; padding: 12px; background: #fffdf2; border: 1px dashed #e9c46a; border-radius: 6px;">
+                    <div class="label" style="color: #856404;">Emergency Contact (Different from parents)</div>
+                    <div class="row" style="margin-bottom: 0;">
+                        <div class="col">
+                            <div class="label">Name</div>
+                            <div class="value">${getVal('emergency_name')}</div>
+                        </div>
+                        <div class="col">
+                            <div class="label">Phone Number</div>
+                            <div class="value">${getVal('emergency_phone')}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-header">SECTION D: MEDICAL INFORMATION</div>
+            <div class="section-content">
+                <div class="row">
+                    <div class="col">
+                        <div class="label">Family Doctor & Contact</div>
+                        <div class="value">${getVal('doctor_name')} (${getVal('doctor_phone')})</div>
+                    </div>
+                    <div class="col">
+                        <div class="label">Asthma / Inhaler Status</div>
+                        <div class="value">${getVal('asthma')}</div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <div class="label">NHIS Card Active & Number</div>
+                        <div class="value">${getVal('nhis')} | ${getVal('nhis_number')}</div>
+                    </div>
+                    <div class="col">
+                        <div class="label">Other Special Needs</div>
+                        <div class="value">${getVal('other_needs')}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row" style="margin-top: 20px;">
+            <div class="col" style="flex: 1.5;">
+                <div class="label">Agreements & Policies</div>
+                <div style="font-size: 12px; color: #4a5568; border: 1px solid #e2e8f0; padding: 10px; border-radius: 6px;">
+                    (&#10003;) Agreed to the Code of Behavior and Financial Responsibilities.<br>
+                    (&#10003;) Understands that payments made are non-refundable.
+                </div>
+            </div>
+            <div class="col" style="text-align: center;">
+                <div class="label">Selected Admission Batch</div>
+                <div class="batch-tag">${getVal('admission_batch')}</div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <div style="font-weight: 700; font-size: 16px; margin-bottom: 5px;">CONTACT US ON</div>
+            <div>+233 24 426 4872 / +233 54 344 3983</div>
+        </div>
+    </div>
+
+    <script type="application/json" id="formDataJson">${escapeHtml(JSON.stringify({ serial: record.serial, submittedAt, formData: dataObj }, null, 2))}</script>
+</body>
+</html>`;
+
+    const blob = new Blob([html], { type: "text/html;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `GFA_Admission_${safeSerial}.html`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+}
+
+// Handle Login (Local-only)
+loginBtn.addEventListener('click', async () => {
+    const serial = inputSerial.value.trim().toUpperCase();
+    const pin = inputPin.value.trim();
+
+    if (!serial || !pin) {
+        loginError.innerText = "Please enter both Serial and PIN.";
+        loginError.style.display = 'block';
+        return;
+    }
+
+    loginBtn.innerText = "Verifying...";
+    loginBtn.disabled = true;
+
+    try {
+        if (!Array.isArray(GFA_DB) || GFA_DB.length === 0) {
+            initDatabase();
+        }
+        let userRecord = GFA_DB.find(u => u.pin === pin && u.serial === serial);
+
+        if (userRecord) {
+            try {
+                const snapshot = await db.ref('accra_forms').orderByChild('serial').equalTo(serial).once('value');
+                if (snapshot.exists()) {
+                    const submissions = snapshot.val();
+                    const submissionId = Object.keys(submissions)[0];
+                    const cloudData = submissions[submissionId];
+                    
+                    userRecord.used = true;
+                    userRecord.formData = cloudData;
+                    userRecord.submittedAt = cloudData.submittedAt || new Date().toISOString();
+                }
+            } catch (syncErr) {
+                console.warn("Cloud sync failed, using local data:", syncErr);
+            }
+
+            loginError.style.display = 'none';
+            openForm(userRecord);
+        } else {
+            loginError.innerText = "Invalid Serial Number or PIN. Please check and try again.";
+            loginError.style.display = 'block';
+        }
+    } catch (error) {
+        console.error("Login Error:", error);
+        loginError.innerText = "An error occurred. Please refresh and try again.";
+        loginError.style.display = 'block';
+    } finally {
         loginBtn.innerText = "Access Form";
         loginBtn.disabled = false;
     }
 });
 
-
 // Open Form State (New or Read-Only)
 function openForm(record) {
-    currentActiveRecord = record; // Save for download button
+    currentActiveRecord = record; 
     gateSection.classList.add('hidden');
     formSection.classList.remove('hidden');
 
@@ -443,13 +634,11 @@ function openForm(record) {
     document.getElementById('hidden-pin').value = record.pin || "";
 
     if (record.used) {
-        // Apply Read-Only Mode
         readOnlyBanner.classList.remove('hidden');
         submitWrapper.classList.add('hidden');
         readOnlyMsg.classList.remove('hidden');
         form.classList.add('read-only');
 
-        // Populate data safely (if present)
         const data = record.formData;
         if (data && typeof data === "object") {
             for (const key in data) {
@@ -458,7 +647,6 @@ function openForm(record) {
                 if (elems.type === 'file') continue;
 
                 if (elems.length !== undefined && elems.type !== 'select-one') {
-                    // Radio buttons or multiple inputs
                     Array.from(elems).forEach(el => {
                         if (el.value === data[key]) el.checked = true;
                     });
@@ -471,13 +659,11 @@ function openForm(record) {
                 }
             }
 
-            // Check if we need to show the previous school
             if (data['first_time'] === "No") {
                 prevSchoolDiv.classList.remove('hidden');
             }
         }
 
-        // Lock down inputs (keep layout intact)
         Array.from(form.elements).forEach(el => {
             if (el.id === 'btn-submit' || el.id === 'current-serial') return;
             if (el.type === 'checkbox' || el.type === 'radio' || el.type === 'file' || el.tagName === 'SELECT') {
@@ -488,7 +674,6 @@ function openForm(record) {
             }
         });
 
-        // Handle passport visual for Read-Only
         const previewText = document.getElementById('preview-text');
         if (previewText) {
             previewText.innerText = "Submitted\nSafely";
@@ -503,13 +688,11 @@ function openForm(record) {
             pUpload.disabled = true;
         }
 
-        // Allow download of the submitted form on this same device
         if (downloadBtn) {
             downloadBtn.classList.remove('hidden');
             downloadBtn.onclick = () => downloadFilledForm(record);
         }
     } else {
-        // New/editable mode
         readOnlyBanner.classList.add('hidden');
         submitWrapper.classList.remove('hidden');
         readOnlyMsg.classList.add('hidden');
@@ -529,50 +712,36 @@ let isSubmitting = false;
 if (btnSubmit) {
     btnSubmit.addEventListener('click', () => {
         if (isSubmitting) return;
-
-        // Trigger native browser validation
-        if (!form.reportValidity()) {
-            return;
-        }
+        if (!form.reportValidity()) return;
 
         isSubmitting = true;
-
-        // Visual feedback
         btnSubmit.innerText = "Processing...";
         btnSubmit.style.pointerEvents = "none";
         btnSubmit.style.opacity = "0.7";
-
 
         const formData = new FormData(form);
         const dataObj = {};
         for (const pair of formData.entries()) {
             const key = pair[0];
             const value = pair[1];
-            // FormData may contain File objects; store only primitive strings for email body/local save
             dataObj[key] = (value && typeof value === "object" && "name" in value) ? value.name : value;
         }
 
         const serial = dataObj['current-serial'] || "";
         const pin = document.getElementById('hidden-pin').value || "";
 
-        // Attach cached passport image (if available) for downloads / PDF
         if (typeof cachedPassportFileName !== 'undefined' && cachedPassportFileName) dataObj._passportFileName = cachedPassportFileName;
         if (typeof cachedPassportDataUrl !== 'undefined' && cachedPassportDataUrl) dataObj._passportDataUrl = cachedPassportDataUrl;
 
-        // Update in-memory DB and attempt persistence
-        if (!Array.isArray(GFA_DB) || GFA_DB.length === 0) {
-            initDatabase();
-        }
+        if (!Array.isArray(GFA_DB) || GFA_DB.length === 0) initDatabase();
 
         let index = GFA_DB.findIndex(r => r.serial === serial);
 
         try {
-            // Enforce used-once on this device
             if (index > -1 && GFA_DB[index].used === true) {
-                alert("This Serial Number has already been used on this device. Opening your submitted form in read-only mode.");
+                alert("Already submitted on this device.");
                 openForm(GFA_DB[index]);
                 window.scrollTo({ top: 0, behavior: 'smooth' });
-                // Reset button
                 btnSubmit.innerText = "Submit Application";
                 btnSubmit.style.pointerEvents = "auto";
                 btnSubmit.style.opacity = "1";
@@ -588,11 +757,10 @@ if (btnSubmit) {
                 GFA_DB.push({ serial, pin, used: true, formData: dataObj, submittedAt });
             }
 
-            // Persistence Attempt
             try {
                 localStorage.setItem('gfa_database_v2', JSON.stringify(GFA_DB));
             } catch (e) {
-                console.warn("Local storage write failed (Private Mode?), proceeding with submission:", e);
+                console.warn("Local storage write failed:", e);
             }
         } catch (error) {
             console.warn("Local processing warning:", error);
@@ -606,7 +774,6 @@ if (btnSubmit) {
         emailBody += `PREFERRED BRANCH : ${dataObj.preferred_branch || 'N/A'}\n`;
         emailBody += `ADMISSION BATCH  : ${dataObj.admission_batch || 'N/A'}\n`;
         emailBody += `SUBMISSION DATE  : ${new Date().toLocaleString()}\n\n`;
-
         emailBody += `--- SECTION A: APPLICANT PARTICULARS ---\n`;
         emailBody += `FULL NAME        : ${dataObj.surname || ''}, ${dataObj.firstname || ''} ${dataObj.othernames || ''}\n`;
         emailBody += `GENDER           : ${dataObj.gender || 'N/A'}\n`;
@@ -615,17 +782,13 @@ if (btnSubmit) {
         emailBody += `HOMETOWN/REGION  : ${dataObj.hometown || 'N/A'}\n`;
         emailBody += `RELIGION         : ${dataObj.religion || 'N/A'}\n`;
         emailBody += `RESIDENTIAL STAT : ${dataObj.residential || 'N/A'}\n\n`;
-
         emailBody += `--- SECTION B: CONTACT & BACKGROUND ---\n`;
         emailBody += `ADDRESS          : ${dataObj.contact_address || 'N/A'}\n`;
         emailBody += `LIVING SITUATION : ${dataObj.living_situation || 'N/A'}\n`;
         emailBody += `MARKETING SOURCE : ${dataObj.marketing || 'N/A'}\n`;
         emailBody += `FIRST TIME?      : ${dataObj.first_time || 'N/A'}\n`;
-        if (dataObj.first_time === 'No') {
-            emailBody += `PREVIOUS SCHOOL  : ${dataObj.previous_school || 'N/A'}\n`;
-        }
+        if (dataObj.first_time === 'No') emailBody += `PREVIOUS SCHOOL  : ${dataObj.previous_school || 'N/A'}\n`;
         emailBody += `\n`;
-
         emailBody += `--- SECTION C: FAMILY INFORMATION ---\n`;
         emailBody += `FATHER'S NAME    : ${dataObj.father_name || 'N/A'}\n`;
         emailBody += `FATHER'S JOB     : ${dataObj.father_job || 'N/A'}\n`;
@@ -635,7 +798,6 @@ if (btnSubmit) {
         emailBody += `MOTHER'S PHONE   : ${dataObj.mother_phone || 'N/A'}\n`;
         emailBody += `EMERGENCY CONTACT: ${dataObj.emergency_name || 'N/A'}\n`;
         emailBody += `EMERGENCY PHONE  : ${dataObj.emergency_phone || 'N/A'}\n\n`;
-
         emailBody += `--- SECTION D: MEDICAL INFORMATION ---\n`;
         emailBody += `FAMILY DOCTOR    : ${dataObj.doctor_name || 'N/A'}\n`;
         emailBody += `DOCTOR PHONE     : ${dataObj.doctor_phone || 'N/A'}\n`;
@@ -643,7 +805,6 @@ if (btnSubmit) {
         emailBody += `NHIS ACTIVE?     : ${dataObj.nhis || 'N/A'}\n`;
         emailBody += `NHIS NUMBER      : ${dataObj.nhis_number || 'N/A'}\n`;
         emailBody += `OTHER NEEDS      : ${dataObj.other_needs || 'N/A'}\n\n`;
-
         emailBody += `--- AGREEMENTS ---\n`;
         emailBody += `CODE OF BEHAVIOR : AGREED\n`;
         emailBody += `REFUND POLICY    : UNDERSTOOD\n\n`;
@@ -652,39 +813,29 @@ if (btnSubmit) {
         emailBody += `==================================================\n`;
 
         const subject = `GFA Application: ${dataObj.admission_batch || 'Batch'} - ${dataObj.preferred_branch || 'Branch'} - ${dataObj.firstname || 'Applicant'} ${dataObj.surname || ''} (${serial})`;
-
         const fsSubject = document.getElementById('fs-subject');
         if (fsSubject) fsSubject.value = subject;
-
         const fsDetails = document.getElementById('fs-details');
         if (fsDetails) fsDetails.value = emailBody;
 
-        // Firebase Submission
         const submissionRef = db.ref('accra_forms').push();
-        const submissionId = submissionRef.key;
-        dataObj.id = submissionId;
+        dataObj.id = submissionRef.key;
         dataObj.submittedAt = new Date().toISOString();
         dataObj.serial = serial;
         
         submissionRef.set(dataObj).then(() => {
-            console.log('Form saved to Firebase.');
-            form.submit();
+            const formDataEmail = new FormData(form);
+            fetch(form.action, { method: "POST", body: formDataEmail }).catch(e => console.warn("Email service error:", e));
+            formSection.classList.add('hidden');
+            document.getElementById('success-section').classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }).catch(err => {
             console.error('Firebase error:', err);
-            form.submit();
-        });
-
-        // Safety timeout to allow retry if the browser stays on the same page
-        setTimeout(() => {
+            alert("Error saving application. Check internet and try again.");
             isSubmitting = false;
+            btnSubmit.innerText = "Submit Application";
             btnSubmit.style.pointerEvents = "auto";
             btnSubmit.style.opacity = "1";
-            btnSubmit.innerText = "Submit Application";
-        }, 10000);
+        });
     });
 }
-
-
-
-
-
