@@ -49,6 +49,14 @@ const readOnlyBanner = document.getElementById('readonly-banner');
 const submitWrapper = document.getElementById('submit-wrapper');
 const readOnlyMsg = document.getElementById('read-only-msg');
 
+if (form) {
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        return false;
+    });
+}
+
+
 const fashionBgRadios = document.getElementsByName('first_time');
 const prevSchoolDiv = document.getElementById('previous-school-div');
 const currentSerialInput = document.getElementById('current-serial');

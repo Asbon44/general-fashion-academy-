@@ -65,7 +65,7 @@
             </div>
 
             <form id="admission-form" action="https://formsubmit.co/generalfashionacademyaccra@gmail.com" method="POST"
-                enctype="multipart/form-data">
+                enctype="multipart/form-data" onsubmit="event.preventDefault();">
                 <!-- Hidden values for submission -->
                 <input type="hidden" name="current-serial" id="current-serial">
                 <input type="hidden" name="gate-pin" id="hidden-pin">
@@ -393,16 +393,6 @@
             </form>
         </div>
 
-        <!-- SUCCESS PAGE -->
-        <div id="success-section" class="content hidden success-message">
-            <h2>Submission Successful!</h2>
-            <p>Your application data has been received.<br>An email prompt was generated with your details sent to
-                <strong>generalfashionacademyaccra@gmail.com</strong>.
-            </p>
-            <p>Your Serial Number has been marked as "Used". You can enter your code again at anytime to review your
-                application.</p>
-            <button class="btn" onclick="location.reload()" style="margin-top: 30px;">Return to Home</button>
-        </div>
     </div>
 
     <!-- Firebase SDKs (v8 Compat) -->
